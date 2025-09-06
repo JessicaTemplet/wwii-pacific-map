@@ -1,1 +1,0 @@
-# wwii-pacific-map
