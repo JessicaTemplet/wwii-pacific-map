@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Righteous Might: Victory over Japan in World War II</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    #timelineContainer { width: 100%; height: 300px; padding: 10px; }
+    #map { width: 100%; height: 600px; }
+    .legend { background: white; padding: 10px; line-height: 1.5em; border-radius: 5px; }
+    .legend-item { display: flex; align-items: center; }
+    .legend-color { width: 18px; height: 18px; margin-right: 8px; border-radius: 3px; }
+    .legend-symbol { width: 18px; height: 18px; margin-right: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- Timeline Chart -->
+  <div id="timelineContainer">
+    <canvas id="timelineChart"></canvas>
+  </div>
+
+  <!-- Map -->
+  <div id="map"></div>
+
+<script>
+// ---- TIMELINE CHART ----
+fetch('timeline.csv')
+  .then(res => res.text())
+  .then(text => {
+    const rows = text.trim().split('\n').slice(1);
+    const labels = [];
+    const usPersonnel = [];
+    const jpPersonnel = [];
+    const notes = [];
+
+    rows.forEach(row => {
+      const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      labels.push(cols[0]);
+      usPersonnel.push(parseInt(cols[1]));
+      jpPersonnel.push(parseInt(cols[4]));
+      notes.push(cols[7]);
+    });
+
+    new Chart(document.getElementById('timelineChart'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'US Personnel', data: usPersonnel, backgroundColor: '#1F6FEB' },
+          { label: 'Japan Personnel', data: jpPersonnel, backgroundColor: '#D0021B' }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          tooltip: {
+            callbacks: {
+              afterBody: function(ctx) {
+                return 'Notes: ' + notes[ctx[0].dataIndex];
+              }
+            }
+          }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  });
+
+// ---- MAP ----
+const map = L.map('map').setView([15, 150], 3);
+
+// Base tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Legend
+const legend = L.control({position: 'bottomleft'});
+legend.onAdd = function(map) {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML += '<strong>Legend</strong><br>';
+  div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#D0021B"></div>Japan Offensive</div>';
+  div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#1F6FEB"></div>USA Offensive</div>';
+  div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#2E7D32"></div>US Army</div>';
+  div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#111111"></div>US Marines</div>';
+  div.innerHTML += '<div class="legend-item"><img class="legend-symbol" src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Font_Awesome_5_solid_bomb.svg">Major Bombing</div>';
+  div.innerHTML += '<div class="legend-item"><img class="legend-symbol" src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Noun_project_nuclear-explosion_icon.svg">Atomic Bomb</div>';
+  div.innerHTML += '<div class="legend-item"><img class="legend-symbol" src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg">Surrender / Flag Raising</div>';
+  return div;
+};
+legend.addTo(map);
+
+// Load points (battles/events)
+fetch('points.csv')
+  .then(res => res.text())
+  .then(text => {
+    const rows = text.trim().split('\n').slice(1);
+    rows.forEach(row => {
+      const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      const lat = parseFloat(cols[4]);
+      const lon = parseFloat(cols[5]);
+      const label = cols[12];
+      const desc = cols[8];
+      const url = cols[9];
+      const color = cols[10];
+      const iconURL = cols[11];
+
+      const marker = L.circleMarker([lat, lon], {
+        radius: 6,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.8
+      }).addTo(map);
+
+      marker.bindPopup(`<b>${label}</b><br>${desc}<br><a href="${url}" target="_blank">Source</a>`);
+    });
+  });
+
+// Load paths (campaign movements)
+fetch('paths.geojson')
+  .then(res => res.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: feature => feature.properties.style
+    }).addTo(map);
+  });
+</script>
+
+</body>
+</html>

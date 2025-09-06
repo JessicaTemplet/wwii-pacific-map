@@ -1,0 +1,73 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "service": "Japan",
+        "style": { "stroke": "#D0021B", "stroke-width": 2, "stroke-dasharray": "6,4" }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [116.488, 39.864],
+          [121.0, 15.0],
+          [114.2, 22.3],
+          [166.6, 19.3],
+          [157.95, 21.364]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "service": "US Navy",
+        "style": { "stroke": "#1F6FEB", "stroke-width": 2, "stroke-dasharray": "6,4" }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [157.95, 21.364],
+          [154.0, -15.0],
+          [28.2, -177.4],
+          [-9.4, 160.0],
+          [15.2, 145.7],
+          [10.9, 125.0],
+          [24.8, 141.3],
+          [26.3, 127.9]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "service": "US Army",
+        "style": { "stroke": "#2E7D32", "stroke-width": 2, "stroke-dasharray": "6,4" }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [15.0, 121.0],
+          [15.2, 145.7],
+          [10.9, 125.0]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "service": "US Marines",
+        "style": { "stroke": "#111111", "stroke-width": 2, "stroke-dasharray": "6,4" }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [28.2, -177.4],
+          [-9.4, 160.0],
+          [24.8, 141.3],
+          [26.3, 127.9]
+        ]
+      }
+    }
+  ]
+}
