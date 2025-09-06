@@ -108,7 +108,7 @@ function initializeMap() {
           "coordinates": [
             [-157.95, 21.364],
             [154.0, -15.0],
-            [-177.4, 28.2],
+            [177.4, 28.2],
             [160.0, -9.4],
             [145.7, 15.2],
             [125.0, 10.9],
@@ -141,7 +141,7 @@ function initializeMap() {
         "geometry": {
           "type": "LineString",
           "coordinates": [
-            [-177.4, 28.2],
+            [177.4, 28.2],
             [160.0, -9.4],
             [141.3, 24.8],
             [127.9, 26.3]
@@ -247,7 +247,7 @@ function initializeMap() {
   }).addTo(map);
 
   // ---------------- LEGEND ----------------
-  const legend = L.control({position: 'topright'});
+  const legend = L.control({position: 'bottomleft'});
   legend.onAdd = function(map) {
     const div = L.DomUtil.create('div', 'legend');
     div.innerHTML = '<strong>Legend</strong><br>';
@@ -263,17 +263,8 @@ function initializeMap() {
 
   // ---------------- MARKERS ----------------
   function createIcon(url, color) {
-    // Create a simple colored circle marker for basic icons
-    if (!url || url === 'circle' || url.indexOf('http') === -1) {
-      return null; // Will use circleMarker instead
-    }
-    
-    return L.icon({
-      iconUrl: url,
-      iconSize: [25, 25],
-      iconAnchor: [12, 12],
-      popupAnchor: [0, -10]
-    });
+    // Don't try to load external icons, use circles instead for reliability
+    return null;
   }
 
   // Add markers from points data
@@ -287,31 +278,32 @@ function initializeMap() {
       const desc = row.Description || '';
       const url = row['Source URL'] || '';
       const color = row['Marker Color'] || 'blue';
-      const iconURL = row.Icon;
+      const iconType = row.Icon;
 
       if (isNaN(lat) || isNaN(lon)) return;
 
-      let marker;
-      const icon = createIcon(iconURL, color);
+      // Use circle marker with appropriate color and size based on event type
+      let markerColor = color;
+      let radius = 8;
       
-      if (icon) {
-        marker = L.marker([lat, lon], {icon: icon}).addTo(map);
-      } else {
-        // Use circle marker with appropriate color
-        let markerColor = color;
-        if (color === 'red') markerColor = '#D0021B';
-        else if (color === 'blue') markerColor = '#1F6FEB';
-        else if (color === 'orange') markerColor = '#FFA500';
-        else if (color === 'green') markerColor = '#008000';
-        
-        marker = L.circleMarker([lat, lon], {
-          radius: 8,
-          color: '#000',
-          weight: 2,
-          fillColor: markerColor,
-          fillOpacity: 0.8
-        }).addTo(map);
+      if (color === 'red') markerColor = '#D0021B';
+      else if (color === 'blue') markerColor = '#1F6FEB';
+      else if (color === 'orange') {
+        markerColor = '#FFA500';
+        radius = 12; // Larger for atomic bombs
       }
+      else if (color === 'green') {
+        markerColor = '#008000';
+        radius = 10; // Larger for surrender
+      }
+      
+      const marker = L.circleMarker([lat, lon], {
+        radius: radius,
+        color: '#000',
+        weight: 2,
+        fillColor: markerColor,
+        fillOpacity: 0.8
+      }).addTo(map);
 
       const popupContent = `<b>${label}</b><br>${desc}${url ? '<br><a href="' + url + '" target="_blank">Source</a>' : ''}`;
       marker.bindPopup(popupContent, {maxWidth: 300});
