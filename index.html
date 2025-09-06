@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <title>Righteous Might: Victory over Japan in WWII</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
 <!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<!-- Leaflet JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <style>
   body { margin:0; font-family:sans-serif; }
   #timelineContainer { width:100%; height:300px; padding:10px; }
@@ -24,7 +25,7 @@
   }
   .legend-item { display:flex; align-items:center; margin-bottom:4px; }
   .legend-color { width:18px; height:18px; margin-right:8px; border-radius:3px; }
-  .legend-symbol { width:18px; height:18px; height:auto; margin-right:8px; }
+  .legend-symbol { width:18px; height:18px; margin-right:8px; }
 </style>
 </head>
 <body>
@@ -36,111 +37,300 @@
 <div id="map"></div>
 
 <script>
-// ---------------- TIMELINE ----------------
-fetch('timeline.csv')
-  .then(res=>res.text())
-  .then(text=>{
-    const rows=text.trim().split('\n').slice(1);
-    const labels=[], usPersonnel=[], jpPersonnel=[], notes=[];
-    rows.forEach(row=>{
-      const cols=row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-      labels.push(cols[0].replace(/"/g,''));
-      usPersonnel.push(parseInt(cols[1]));
-      jpPersonnel.push(parseInt(cols[4]));
-      notes.push(cols[7].replace(/"/g,''));
+// Wait for Leaflet to load
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if Leaflet is loaded
+  if (typeof L === 'undefined') {
+    console.error('Leaflet failed to load');
+    return;
+  }
+  
+  initializeMap();
+});
+
+function initializeMap() {
+  // Embedded CSV data
+  const timelineData = `Year,US Total Personnel,US Aircraft,US Warships,Japan Total Personnel,Japan Aircraft,Japan Warships,Notes
+1945,2500000,35000,450,3200000,45000,600,"Allied forces closing in on Japan; atomic bombs dropped in August; Japan surrenders Sept. 2"
+1944,2000000,30000,400,2800000,40000,550,"Liberation of Philippines; Saipan and Iwo Jima campaigns; Leyte Gulf; Marianas Turkey Shoot"
+1943,1500000,25000,350,2500000,35000,500,"Aleutian Islands retaken; Tarawa assault; Gilbert and Marshall Islands campaign ongoing"
+1942,1000000,15000,300,2000000,30000,450,"Midway victory; Guadalcanal campaign begins; Japan occupies Aleutians; Coral Sea battle"
+1941,500000,10000,150,1500000,25000,300,"Japan attacks Pearl Harbor, Philippines, Malaya, Hong Kong, Guam, Wake Island, Thailand; U.S. mobilization begins"`;
+
+  const pointsData = `ID,Event,Start Date,End Date,Latitude,Longitude,Location,Category,Description,Source URL,Marker Color,Icon,Label
+1,Marco Polo Bridge Incident,1937-07-07,1937-07-09,39.864,116.488,Beijing,Conflict,"Clash between Chinese and Japanese troops, marking the start of the Second Sino-Japanese War.","https://www.britannica.com/event/Marco-Polo-Bridge-Incident",red,circle,Marco Polo Bridge
+2,Attack on Pearl Harbor,1941-12-07,1941-12-07,21.364,-157.95,Oahu Hawaii,Attack,"Surprise Japanese attack crippling U.S. Pacific Fleet; catalyst for U.S. entry into WWII.","https://www.nps.gov/perl/learn/historyculture/index.htm",red,https://upload.wikimedia.org/wikipedia/commons/8/8a/Font_Awesome_5_solid_bomb.svg,Pearl Harbor
+3,Battle of the Philippines,1941-12-08,1942-05-08,15.0,121.0,Philippines,Campaign,"Japanese invasion leading to U.S. and Filipino surrender at Corregidor.","https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1941/philippines.html",red,circle,Philippines Campaign
+4,Battle of Hong Kong,1941-12-08,1941-12-25,22.3,114.2,Hong Kong,Conflict,"Japanese forces capture British colony after 17 days of fighting.","https://www.veterans.gc.ca/eng/remembrance/history/second-world-war/hong-kong",red,circle,Hong Kong
+5,Battle of Wake Island,1941-12-08,1941-12-23,19.3,166.6,Wake Island,Conflict,"Outnumbered U.S. Marines resist Japanese attack before eventual surrender.","https://www.nps.gov/places/wake-island.htm",red,circle,Wake Island
+6,Battle of Midway,1942-06-04,1942-06-07,28.2,-177.4,Midway Atoll,Battle,"Decisive U.S. naval victory; major turning point in Pacific War.","https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1942/midway.html",blue,circle,Midway
+7,Guadalcanal Campaign,1942-08-07,1943-02-09,-9.4,160.0,Solomon Islands,Campaign,"First major U.S. offensive against Japan; key to securing supply lines.","https://www.nps.gov/articles/000/guadalcanal-campaign.htm",blue,circle,Guadalcanal
+8,Battle of the Coral Sea,1942-05-04,1942-05-08,-15.0,154.0,Coral Sea,Battle,"First carrier battle; strategic U.S. victory halting Japanese advance on Port Moresby.","https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1942/coral-sea.html",blue,circle,Coral Sea
+9,Battle of Attu,1943-05-11,1943-05-30,52.9,173.2,Aleutian Islands,Battle,"U.S. retakes Aleutian island from Japanese forces.","https://www.army.mil/attu/",blue,circle,Attu
+10,Battle of Tarawa,1943-11-20,1943-11-23,1.4,172.9,Gilbert Islands,Battle,"First major U.S. amphibious assault in central Pacific; heavy casualties.","https://www.nps.gov/parkhistory/online_books/npswapa/extcontent/usmc/pcn-190-003130-00/sec1.htm",blue,circle,Tarawa
+11,Battle of the Philippine Sea,1944-06-19,1944-06-20,15.0,135.0,Philippine Sea,Battle,"Massive carrier battle; 'Great Marianas Turkey Shoot' cripples Japanese naval aviation.","https://www.history.navy.mil/research/library/online-reading-room/title-list-alphabetically/b/battle-of-the-philippine-sea.html",blue,circle,Philippine Sea
+12,Battle of Leyte Gulf,1944-10-23,1944-10-26,10.9,125.0,Leyte Philippines,Battle,"Largest naval battle in history; decisive Allied victory securing Philippines.","https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1944/leyte.html",blue,circle,Leyte Gulf
+13,Battle of Saipan,1944-06-15,1944-07-09,15.2,145.7,Mariana Islands,Battle,"Brutal campaign giving Allies an airbase within range of Japan.","https://www.nps.gov/places/saipan.htm",blue,circle,Saipan
+14,Battle of Iwo Jima,1945-02-19,1945-03-26,24.8,141.3,Iwo Jima,Battle,"Iconic battle; U.S. Marines capture island after fierce Japanese resistance.","https://www.nps.gov/articles/iwojima.htm",blue,https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg,Iwo Jima
+15,Battle of Okinawa,1945-04-01,1945-06-22,26.3,127.9,Okinawa,Battle,"Largest amphibious assault in Pacific; massive casualties on both sides.","https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1945/okinawa.html",blue,circle,Okinawa
+16,Hiroshima Bombing,1945-08-06,1945-08-06,34.4,132.5,Hiroshima Japan,"Atomic Bombing","First atomic bomb used in war; over 100,000 casualties.","https://www.atomicarchive.com/resources/timeline/timeline6.html",orange,https://upload.wikimedia.org/wikipedia/commons/6/6e/Noun_project_nuclear-explosion_icon.svg,Hiroshima
+17,Nagasaki Bombing,1945-08-09,1945-08-09,32.8,129.9,Nagasaki Japan,"Atomic Bombing","Second atomic bomb; leads to Japan's surrender.","https://www.atomicarchive.com/resources/timeline/timeline6.html",orange,https://upload.wikimedia.org/wikipedia/commons/6/6e/Noun_project_nuclear-explosion_icon.svg,Nagasaki
+18,Japan Surrenders,1945-09-02,1945-09-02,35.7,139.7,Tokyo Bay,Event,"Formal surrender aboard USS Missouri; end of WWII.","https://www.history.navy.mil/our-collections/photography/numerical-list-of-images/nhhc-series/nh-series/NH-73000/NH-73099.html",green,https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg,Surrender`;
+
+  const pathsData = {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "service": "Japan",
+          "style": { "color": "#D0021B", "weight": 3, "dashArray": "10,5" }
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [116.488, 39.864],
+            [121.0, 15.0],
+            [114.2, 22.3],
+            [166.6, 19.3],
+            [-157.95, 21.364]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "service": "US Navy",
+          "style": { "color": "#1F6FEB", "weight": 3, "dashArray": "10,5" }
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [-157.95, 21.364],
+            [154.0, -15.0],
+            [-177.4, 28.2],
+            [160.0, -9.4],
+            [145.7, 15.2],
+            [125.0, 10.9],
+            [141.3, 24.8],
+            [127.9, 26.3]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "service": "US Army",
+          "style": { "color": "#2E7D32", "weight": 3, "dashArray": "10,5" }
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [121.0, 15.0],
+            [145.7, 15.2],
+            [125.0, 10.9]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "service": "US Marines",
+          "style": { "color": "#111111", "weight": 3, "dashArray": "10,5" }
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [-177.4, 28.2],
+            [160.0, -9.4],
+            [141.3, 24.8],
+            [127.9, 26.3]
+          ]
+        }
+      }
+    ]
+  };
+
+  // Parse CSV function
+  function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    const headers = lines[0].split(',');
+    const data = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let j = 0; j < lines[i].length; j++) {
+        const char = lines[i][j];
+        if (char === '"' && (j === 0 || lines[i][j-1] === ',')) {
+          inQuotes = true;
+        } else if (char === '"' && inQuotes) {
+          inQuotes = false;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim()); // Add the last value
+      
+      const row = {};
+      headers.forEach((header, index) => {
+        row[header] = values[index] ? values[index].replace(/^"|"$/g, '') : '';
+      });
+      data.push(row);
+    }
+    
+    return data;
+  }
+
+  // ---------------- TIMELINE ----------------
+  try {
+    const timelineRows = parseCSV(timelineData);
+    const labels = [], usPersonnel = [], jpPersonnel = [], notes = [];
+    
+    timelineRows.forEach(row => {
+      labels.push(row.Year);
+      usPersonnel.push(parseInt(row['US Total Personnel']) || 0);
+      jpPersonnel.push(parseInt(row['Japan Total Personnel']) || 0);
+      notes.push(row.Notes || '');
     });
+
     new Chart(document.getElementById('timelineChart'), {
-      type:'bar',
-      data:{
-        labels:labels,
-        datasets:[
-          {label:'US Personnel', data:usPersonnel, backgroundColor:'#1F6FEB'},
-          {label:'Japan Personnel', data:jpPersonnel, backgroundColor:'#D0021B'}
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'US Personnel',
+            data: usPersonnel,
+            backgroundColor: '#1F6FEB'
+          },
+          {
+            label: 'Japan Personnel',
+            data: jpPersonnel,
+            backgroundColor: '#D0021B'
+          }
         ]
       },
-      options:{
-        indexAxis:'y',
-        plugins:{ tooltip:{
-          callbacks:{
-            afterBody: function(ctx){ return 'Notes: '+notes[ctx[0].dataIndex]; }
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          tooltip: {
+            callbacks: {
+              afterBody: function(context) {
+                return 'Notes: ' + notes[context[0].dataIndex];
+              }
+            }
           }
-        }},
-        responsive:true,
-        maintainAspectRatio:false
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            beginAtZero: true
+          }
+        }
       }
     });
-  });
+  } catch (error) {
+    console.error('Timeline chart error:', error);
+  }
 
-// ---------------- MAP ----------------
-const map = L.map('map').setView([15,150],3);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'&copy; OpenStreetMap contributors'
-}).addTo(map);
+  // ---------------- MAP ----------------
+  const map = L.map('map').setView([15, 150], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
-// ---------------- LEGEND ----------------
-const legend = L.control({position:'topright'});
-legend.onAdd=function(map){
-  const div=L.DomUtil.create('div','legend');
-  div.innerHTML='<strong>Legend</strong><br>';
-  div.innerHTML+='<div class="legend-item"><div class="legend-color" style="background:#D0021B"></div>Japan Offensive</div>';
-  div.innerHTML+='<div class="legend-item"><div class="legend-color" style="background:#1F6FEB"></div>USA Offensive</div>';
-  div.innerHTML+='<div class="legend-item"><div class="legend-color" style="background:#2E7D32"></div>US Army</div>';
-  div.innerHTML+='<div class="legend-item"><div class="legend-color" style="background:#111111"></div>US Marines</div>';
-  div.innerHTML+='<div class="legend-item"><img class="legend-symbol" src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Font_Awesome_5_solid_bomb.svg">Major Bombing</div>';
-  div.innerHTML+='<div class="legend-item"><img class="legend-symbol" src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Noun_project_nuclear-explosion_icon.svg">Atomic Bomb</div>';
-  div.innerHTML+='<div class="legend-item"><img class="legend-symbol" src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg">Surrender / Flag Raising</div>';
-  return div;
-};
-legend.addTo(map);
+  // ---------------- LEGEND ----------------
+  const legend = L.control({position: 'topright'});
+  legend.onAdd = function(map) {
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = '<strong>Legend</strong><br>';
+    div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#D0021B"></div>Japan Offensive</div>';
+    div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#1F6FEB"></div>USA Offensive</div>';
+    div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#2E7D32"></div>US Army</div>';
+    div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#111111"></div>US Marines</div>';
+    div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#FFA500"></div>Atomic Bombs</div>';
+    div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#008000"></div>Surrender</div>';
+    return div;
+  };
+  legend.addTo(map);
 
-// ---------------- MARKERS ----------------
-function createIcon(url) {
-  return L.icon({
-    iconUrl: url,
-    iconSize: [25,25],
-    iconAnchor: [12,12],
-    popupAnchor: [0,-10]
-  });
-}
+  // ---------------- MARKERS ----------------
+  function createIcon(url, color) {
+    // Create a simple colored circle marker for basic icons
+    if (!url || url === 'circle' || url.indexOf('http') === -1) {
+      return null; // Will use circleMarker instead
+    }
+    
+    return L.icon({
+      iconUrl: url,
+      iconSize: [25, 25],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -10]
+    });
+  }
 
-fetch('points.csv')
-  .then(res=>res.text())
-  .then(text=>{
-    const rows=text.trim().split('\n').slice(1);
-    rows.forEach(row=>{
-      const cols=row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-      const lat=parseFloat(cols[4]);
-      const lon=parseFloat(cols[5]);
-      const label=cols[12].replace(/"/g,'');
-      const desc=cols[8].replace(/"/g,'');
-      const url=cols[9].replace(/"/g,'');
-      const color=cols[10];
-      const iconURL=cols[11];
+  // Add markers from points data
+  try {
+    const pointRows = parseCSV(pointsData);
+    
+    pointRows.forEach(row => {
+      const lat = parseFloat(row.Latitude);
+      const lon = parseFloat(row.Longitude);
+      const label = row.Label || row.Event;
+      const desc = row.Description || '';
+      const url = row['Source URL'] || '';
+      const color = row['Marker Color'] || 'blue';
+      const iconURL = row.Icon;
+
+      if (isNaN(lat) || isNaN(lon)) return;
 
       let marker;
-      if(iconURL && iconURL.length>0){
-        marker=L.marker([lat,lon],{icon:createIcon(iconURL)}).addTo(map);
+      const icon = createIcon(iconURL, color);
+      
+      if (icon) {
+        marker = L.marker([lat, lon], {icon: icon}).addTo(map);
       } else {
-        marker=L.circleMarker([lat,lon],{
-          radius:6,
-          color:color,
-          fillColor:color,
-          fillOpacity:0.8
+        // Use circle marker with appropriate color
+        let markerColor = color;
+        if (color === 'red') markerColor = '#D0021B';
+        else if (color === 'blue') markerColor = '#1F6FEB';
+        else if (color === 'orange') markerColor = '#FFA500';
+        else if (color === 'green') markerColor = '#008000';
+        
+        marker = L.circleMarker([lat, lon], {
+          radius: 8,
+          color: '#000',
+          weight: 2,
+          fillColor: markerColor,
+          fillOpacity: 0.8
         }).addTo(map);
       }
 
-      marker.bindPopup(`<b>${label}</b><br>${desc}<br><a href="${url}" target="_blank">Source</a>`, {maxWidth:250});
+      const popupContent = `<b>${label}</b><br>${desc}${url ? '<br><a href="' + url + '" target="_blank">Source</a>' : ''}`;
+      marker.bindPopup(popupContent, {maxWidth: 300});
     });
-  });
+  } catch (error) {
+    console.error('Markers error:', error);
+  }
 
-// ---------------- PATHS ----------------
-fetch('paths.geojson')
-  .then(res=>res.json())
-  .then(data=>{
-    L.geoJSON(data,{
-      style: f=>f.properties.style
+  // ---------------- PATHS ----------------
+  try {
+    L.geoJSON(pathsData, {
+      style: function(feature) {
+        return feature.properties.style;
+      }
     }).addTo(map);
-  });
+  } catch (error) {
+    console.error('Paths error:', error);
+  }
+}
 
 </script>
 
