@@ -307,13 +307,9 @@ function initializeMap() {
 
       if (isNaN(lat) || isNaN(lon)) return;
 
-      // Convert coordinates for proper display
+      // Use original coordinates without conversion
       let displayLon = parseFloat(row.lon);
       let displayLat = parseFloat(row.lat);
-      
-      // Fix specific coordinate issues
-      if (displayLon < -150) displayLon = displayLon + 360; // Pearl Harbor area
-      if (displayLon > 180) displayLon = displayLon - 360;   // Wrap back if too high
 
       let marker;
       let radius = 6;
