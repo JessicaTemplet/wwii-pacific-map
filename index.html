@@ -1,183 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Righteous Might: Victory over Japan in WWII</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+  <!-- PapaParse (robust CSV parsing) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
   <style>
-    body { margin:0; padding:0; }
-    #map { height: 70vh; width: 100%; }
-    #timeline { height: 30vh; }
-    .legend {
-      background: white;
-      padding: 6px;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.4);
-      font-size: 14px;
-      line-height: 18px;
-    }
-    .legend-item { display:flex; align-items:center; margin-bottom:4px; }
-    .legend-color {
-      width:14px; height:14px; margin-right:6px; border:1px solid #000;
-    }
+    :root{--map-height:72vh;--timeline-height:24vh}
+    body{margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:#f8f9fa;color:#111}
+    header{padding:12px 16px;text-align:center}
+    header h1{margin:0;font-size:20px}
+    #timelineWrap{width:94%;max-width:1100px;margin:10px auto;height:var(--timeline-height)}
+    #timeline{width:100%;height:100%}
+    #map{width:100%;height:var(--map-height);box-shadow:0 2px 10px rgba(0,0,0,0.06)}
+    /* legend - create at bottom-left then center with CSS */
+    .legend{background:rgba(255,255,255,0.96);padding:10px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);font-size:13px;line-height:1.4;max-height:180px;overflow:auto}
+    .legend .row{display:flex;align-items:center;margin-bottom:6px}
+    .swatch{width:16px;height:12px;margin-right:8px;border-radius:3px;border:1px solid rgba(0,0,0,0.08)}
+    .symbol{width:18px;height:18px;margin-right:8px;display:inline-block;vertical-align:middle}
+    /* center bottom legend */
+    .leaflet-bottom .legend{position:absolute !important; left:50% !important; transform:translateX(-50%); bottom:12px !important}
+    /* event count badge */
+    #countBadge{position:fixed;right:14px;top:14px;background:#1F6FEB;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.12);z-index:9999}
+    a.source{color:#1F6FEB;text-decoration:none}
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="timeline"></div>
+  <header>
+    <h1>Righteous Might: Victory over Japan in World War II</h1>
+  </header>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <div id="timelineWrap">
+    <canvas id="timeline"></canvas>
+  </div>
 
-  <script>
-    // Load CSV and GeoJSON files
-    async function loadData() {
-      const [pointsCSV, pathsGeo, timelineCSV] = await Promise.all([
-        fetch("points.csv").then(res => res.text()),
-        fetch("paths.geojson").then(res => res.json()),
-        fetch("timeline.csv").then(res => res.text())
-      ]);
-      return { pointsCSV, pathsGeo, timelineCSV };
-    }
+  <div id="map" aria-label="WWII Pacific map"></div>
 
-    function parseCSV(text) {
-      const rows = d3.csvParse(text);
-      return rows;
-    }
+  <div id="countBadge" aria-live="polite">Events: —</div>
 
-    function initMap(pointsData, pathsData) {
-      const map = L.map('map').setView([20, 150], 3);
+<script>
+/* ---------- Helper utilities ---------- */
+function toFloat(v){ const n = parseFloat((v||'').toString().replace(/[^0-9\.\-]/g,'')); return isNaN(n) ? null : n; }
+function stripQuotes(s){ return (s||'').toString().replace(/^"|"$/g,''); }
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 8,
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
+/* ---------- Config: fallback icons (public domain/SVG) ---------- */
+const ICON_URLS = {
+  bomb: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Font_Awesome_5_solid_bomb.svg',
+  atomic: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Noun_project_nuclear-explosion_icon.svg',
+  flag: 'https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg'
+};
 
-      // ---------------- LEGEND ----------------
-      const legend = L.control({ position: 'bottomleft' });
-      legend.onAdd = function() {
-        const div = L.DomUtil.create('div', 'legend');
-        div.innerHTML = '<b>Legend</b><br>';
-        div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#D0021B"></div>Japan Offensive</div>';
-        div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#1F6FEB"></div>USA Offensive</div>';
-        div.innerHTML += '<div class="legend-item"><div class="legend-color" style="background:#7A3EE6"></div>Joint Operations</div>';
-        return div;
-      };
-      legend.addTo(map);
+/* Preload an image and resolve true/false for availability */
+function preloadImage(url) {
+  return new Promise((resolve) => {
+    if(!url) return resolve(false);
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    // set crossOrigin just in case (some hosts may deny)
+    try { img.crossOrigin = 'anonymous'; } catch(e){}
+    img.src = url;
+    // timeout fallback
+    setTimeout(()=>resolve(!!img.complete && img.naturalWidth > 0), 3000);
+  });
+}
 
-      // center legend with CSS
-      setTimeout(() => {
-        const legendEl = document.querySelector('.legend');
-        if (legendEl) {
-          legendEl.style.position = 'absolute';
-          legendEl.style.left = '50%';
-          legendEl.style.bottom = '10px';
-          legendEl.style.transform = 'translateX(-50%)';
-        }
-      }, 500);
+/* Create a Leaflet icon object */
+function makeLicon(url, size=26){
+  return L.icon({ iconUrl: url, iconSize:[size,size], iconAnchor:[size/2,size/2], popupAnchor:[0,-size/2] });
+}
 
-      // ---------------- PATHS ----------------
-      L.geoJSON(pathsData, {
-        style: { color: "#555", weight: 2, opacity: 0.6 }
-      }).addTo(map);
+/* ---------- Load timeline.csv (PapaParse) ---------- */
+async function loadAndRenderTimeline(){
+  try{
+    const txt = await (await fetch('timeline.csv')).text();
+    const res = Papa.parse(txt, { header:true, skipEmptyLines:true });
+    const rows = res.data;
 
-      // ---------------- MARKERS ----------------
-      try {
-        const pointRows = parseCSV(pointsData);
+    const labels = rows.map(r=>stripQuotes(r.Year));
+    const us = rows.map(r => +r['US Total Personnel'] || 0);
+    const jp = rows.map(r => +r['Japan Total Personnel'] || 0);
+    const notes = rows.map(r => stripQuotes(r.Notes || ''));
 
-        pointRows.forEach(row => {
-          const lat = parseFloat(row.lat);
-          const lon = parseFloat(row.lon);
-          const name = row.name;
-          const desc = row.short_desc;
-          const url = row.source_url || '';
-          const color = row.marker_color || '#1F6FEB';
-          const symbol = row.marker_symbol;
-
-          if (isNaN(lat) || isNaN(lon)) return;
-
-          let marker;
-          let radius = 6;
-
-          if (row.type === 'atomic') radius = 12;
-          else if (row.type === 'surrender' || row.type === 'flag-raising') radius = 10;
-          else if (row.type === 'bombing') radius = 8;
-
-          if (symbol && symbol.startsWith('http')) {
-            const icon = L.icon({
-              iconUrl: symbol,
-              iconSize: [24, 24],
-              iconAnchor: [12, 12],
-              popupAnchor: [0, -12]
-            });
-            marker = L.marker([lat, lon], { icon: icon }).addTo(map);
-          } else {
-            marker = L.circleMarker([lat, lon], {
-              radius: radius,
-              fillColor: color,
-              color: "#000",
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.8
-            }).addTo(map);
-          }
-
-          const popupContent = `<b>${name}</b><br>${desc}${url ? '<br><a href="' + url + '" target="_blank">Source</a>' : ''}`;
-          marker.bindPopup(popupContent, { maxWidth: 250 });
-        });
-
-      } catch (error) {
-        console.error('Markers error:', error);
+    const ctx = document.getElementById('timeline').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label:'US Personnel', data: us, backgroundColor: '#1F6FEB' },
+          { label:'Japan Personnel', data: jp, backgroundColor: '#D0021B' }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              afterBody: function(items){
+                const i = items[0].dataIndex || 0;
+                return notes[i] ? ('Notes: ' + notes[i]) : '';
+              }
+            }
+          },
+          legend: { position: 'top' }
+        },
+        scales: { x: { beginAtZero:true } }
       }
-    }
-
-    function initTimeline(timelineData) {
-      const rows = parseCSV(timelineData);
-      const years = rows.map(d => +d.Year);
-      const usPersonnel = rows.map(d => +d["US Total Personnel"]);
-      const japanPersonnel = rows.map(d => +d["Japan Total Personnel"]);
-
-      const svg = d3.select("#timeline").append("svg")
-        .attr("width", "100%")
-        .attr("height", "100%");
-
-      const width = document.getElementById("timeline").clientWidth;
-      const height = document.getElementById("timeline").clientHeight;
-
-      const x = d3.scaleLinear().domain(d3.extent(years)).range([50, width-50]);
-      const y = d3.scaleLinear().domain([0, d3.max([...usPersonnel, ...japanPersonnel])]).range([height-40, 20]);
-
-      const lineUS = d3.line().x((d,i) => x(years[i])).y((d,i) => y(usPersonnel[i]));
-      const lineJapan = d3.line().x((d,i) => x(years[i])).y((d,i) => y(japanPersonnel[i]));
-
-      svg.append("path")
-        .datum(usPersonnel)
-        .attr("fill", "none")
-        .attr("stroke", "#1F6FEB")
-        .attr("stroke-width", 2)
-        .attr("d", lineUS);
-
-      svg.append("path")
-        .datum(japanPersonnel)
-        .attr("fill", "none")
-        .attr("stroke", "#D0021B")
-        .attr("stroke-width", 2)
-        .attr("d", lineJapan);
-
-      svg.append("g")
-        .attr("transform", `translate(0,${height-40})`)
-        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-
-      svg.append("g")
-        .attr("transform", `translate(50,0)`)
-        .call(d3.axisLeft(y));
-    }
-
-    loadData().then(({pointsCSV, pathsGeo, timelineCSV}) => {
-      initMap(pointsCSV, pathsGeo);
-      initTimeline(timelineCSV);
     });
-  </script>
+  } catch(e) {
+    console.error('Timeline error', e);
+  }
+}
+
+/* ---------- Load points.csv and paths.geojson, render map ---------- */
+async function loadAndRenderMap(){
+  const map = L.map('map', { preferCanvas:true }).setView([18,145], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+
+  // Legend: add to bottom-left, but CSS centers it
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = () => {
+    const d = L.DomUtil.create('div','legend');
+    d.innerHTML = '<strong>Legend</strong><br>';
+    d.innerHTML += '<div class="row"><span class="swatch" style="background:#D0021B"></span>Japan offensive</div>';
+    d.innerHTML += '<div class="row"><span class="swatch" style="background:#1F6FEB"></span>USA offensive</div>';
+    d.innerHTML += '<div class="row"><span class="swatch" style="background:#7A3EE6"></span>Joint operations</div>';
+    d.innerHTML += '<div class="row"><img class="symbol" src="'+ICON_URLS.bomb+'">Major bombing</div>';
+    d.innerHTML += '<div class="row"><img class="symbol" src="'+ICON_URLS.atomic+'">Atomic</div>';
+    d.innerHTML += '<div class="row"><img class="symbol" src="'+ICON_URLS.flag+'">Surrender / flag-raising</div>';
+    return d;
+  };
+  legend.addTo(map);
+
+  // prefetch points + paths
+  const [pointsTxt, pathsJson] = await Promise.all([
+    fetch('points.csv').then(r=>r.text()),
+    fetch('paths.geojson').then(r=>r.json()).catch(()=>null)
+  ]);
+
+  const parsed = Papa.parse(pointsTxt, { header:true, skipEmptyLines:true });
+  const rows = parsed.data || [];
+  document.getElementById('countBadge').textContent = 'Events: ' + rows.length;
+  console.log('Parsed points rows:', rows.length);
+
+  // gather unique symbol URLs to test availability
+  const symbolUrls = {};
+  rows.forEach(r => {
+    const raw = stripQuotes(r.marker_symbol || r.marker || '');
+    if(raw && raw.toLowerCase().startsWith('http')) symbolUrls[raw] = null;
+    // also check if marker_symbol equals one of keyword names 'bomb','atomic','flag'
+    if(!raw && (r.type || '').toLowerCase() === 'bombing') symbolUrls[ICON_URLS.bomb] = null;
+    if(!raw && (r.type || '').toLowerCase() === 'atomic') symbolUrls[ICON_URLS.atomic] = null;
+    if(!raw && (r.type || '').toLowerCase().includes('flag')) symbolUrls[ICON_URLS.flag] = null;
+  });
+
+  // also ensure known icons are available (these are the Wikimedia ones used heavily)
+  Object.values(ICON_URLS).forEach(u=>symbolUrls[u] = null);
+
+  // preload all symbol URLs
+  const symbolKeys = Object.keys(symbolUrls);
+  await Promise.all(symbolKeys.map(async url => {
+    try {
+      const ok = await preloadImage(url);
+      symbolUrls[url] = ok;
+      if(ok) symbolUrls[url] = makeLicon(url, 28);
+      else symbolUrls[url] = null;
+    } catch(e){
+      symbolUrls[url] = null;
+    }
+  }));
+
+  // add markers
+  const markerLayer = L.featureGroup();
+  rows.forEach((r, idx) => {
+    // columns in your CSV: id,name,start_date,end_date,lat,lon,side_offensive,domain,type,short_desc,source_url,marker_color,marker_symbol,label
+    const lat = toFloat(r.lat || r.Lat || r.Latitude);
+    const lon = toFloat(r.lon || r.Lon || r.Longitude);
+    if(lat === null || lon === null) {
+      console.warn('Skipping invalid coords row', idx, r);
+      return;
+    }
+    const label = stripQuotes(r.label || r.Label || r.name || r.Name || '');
+    const short_desc = stripQuotes(r.short_desc || r.Short_desc || r.short || r.description || '');
+    const source = stripQuotes(r.source_url || r.source || '');
+    const color = stripQuotes(r.marker_color || '#1F6FEB');
+    let rawSymbol = stripQuotes(r.marker_symbol || r.marker || '');
+
+    // detect if rawSymbol is a URL and has a preloaded icon
+    let marker = null;
+    if(rawSymbol && rawSymbol.toLowerCase().startsWith('http') && symbolUrls[rawSymbol]) {
+      marker = L.marker([lat,lon], { icon: symbolUrls[rawSymbol] });
+    } else if(rawSymbol && symbolUrls[rawSymbol]) {
+      // rawSymbol equals a known URL key (rare)
+      marker = L.marker([lat,lon], { icon: symbolUrls[rawSymbol] });
+    } else {
+      // if csv used keywords like "bomb" "atomic" "flag" use ICON_URLS mapping if available
+      const kw = rawSymbol.toLowerCase();
+      if(kw === 'bomb' && symbolUrls[ICON_URLS.bomb]) marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.bomb] });
+      else if(kw === 'atomic' && symbolUrls[ICON_URLS.atomic]) marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.atomic] });
+      else if(kw.includes('flag') && symbolUrls[ICON_URLS.flag]) marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.flag] });
+    }
+
+    // If still no marker (either no icon or icon failed), draw colored circle marker
+    if(!marker){
+      marker = L.circleMarker([lat,lon], {
+        radius: 6,
+        fillColor: color,
+        color: "#222",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.9
+      });
+    }
+
+    const popup = `<strong>${label || ''}</strong><br>${short_desc || ''}${source ? ('<br><a class="source" href="'+source+'" target="_blank" rel="noopener">Source</a>') : ''}`;
+    marker.addTo(markerLayer).bindPopup(popup, { maxWidth: 320, keepInView:true });
+  });
+
+  markerLayer.addTo(map);
+
+  // Add paths if present
+  if(pathsJson){
+    L.geoJSON(pathsJson, {
+      style: f => {
+        const p = f.properties || {};
+        const s = p.style || {};
+        const color = s.color || s.stroke || '#555';
+        const weight = s['stroke-width'] || s.weight || 2;
+        const dash = s['dashArray'] || s['stroke-dasharray'] || '6,4';
+        return { color: color, weight: weight, dashArray: dash, opacity: 0.9 };
+      },
+      onEachFeature: (f,l) => {
+        if(f.properties && f.properties.service) l.bindPopup('<strong>'+f.properties.service+'</strong>');
+      }
+    }).addTo(map);
+  }
+
+  // Fit bounds to markers if we have any
+  if(markerLayer.getLayers().length > 0){
+    try { map.fitBounds(markerLayer.getBounds().pad(0.12)); }
+    catch(e){ console.warn('fitBounds failed', e); }
+  }
+
+  // Update the badge with the number of markers actually added (after any skips)
+  document.getElementById('countBadge').textContent = 'Events: ' + markerLayer.getLayers().length;
+}
+
+/* ---------- Start everything ---------- */
+(async function(){
+  try {
+    await loadAndRenderTimeline();
+    await loadAndRenderMap();
+  } catch(e) {
+    console.error('Startup error', e);
+  }
+})();
+</script>
 </body>
 </html>
