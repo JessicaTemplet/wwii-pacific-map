@@ -1,4 +1,4 @@
-id,name,start_date,end_date,lat,lon,side_offensive,domain,type,short_desc,source_url,marker_color,marker_symbol,labelid,name,start_date,end_date,lat,lon,side_offensive,domain,type,short_desc,source_url,marker_color,marker_symbol,label
+id,name,start_date,end_date,lat,lon,side_offensive,domain,type,short_desc,source_url,marker_color,marker_symbol,label
 1,Mukden Incident,1931-09-18,,41.805,123.431,Japan,land,battle,Japanese forces stage false flag attack on railway to justify Manchuria invasion,https://www.britannica.com/event/Mukden-Incident,#D0021B,1,01. Mukden Incident (Sep 18 1931)
 2,Marco Polo Bridge,1937-07-07,,39.864,116.229,Japan,land,battle,Full-scale Second Sino-Japanese War begins with skirmish near Beijing,https://www.britannica.com/event/Marco-Polo-Bridge-Incident,#D0021B,2,02. Marco Polo Bridge (Jul 7 1937)
 3,France Surrenders,1940-06-22,,48.8566,2.3522,Japan,political,surrender,Fall of France allows Japan to pressure French Indochina and tighten control,https://www.britannica.com/event/France-surrender-1940,#D0021B,3,03. France Surrenders (Jun 22 1940)
