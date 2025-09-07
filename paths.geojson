@@ -4,90 +4,171 @@
     {
       "type": "Feature",
       "properties": {
-        "service": "Japanese Expansion",
-        "style": { "stroke": "#D0021B", "stroke-width": 3, "stroke-dasharray": "6,4" }
+        "name": "Japanese Southern Expansion 1941-1942",
+        "service": "Imperial Japanese Forces",
+        "style": { "stroke": "#D0021B", "stroke-width": 4, "stroke-dasharray": "8,3" }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
           [139.650, 35.676],
-          [116.229, 39.864],
-          [120.984, 14.599],
-          [114.109, 22.396],
-          [166.647, 19.282],
-          [-157.948, 21.362],
-          [103.820, 1.352],
-          [130.842, -12.462]
-        ]
-      }
-    },
-    {
-      "type": "Feature", 
-      "properties": {
-        "service": "US Navy Central Pacific",
-        "style": { "stroke": "#1F6FEB", "stroke-width": 3, "stroke-dasharray": "6,4" }
-      },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [-157.948, 21.362],
-          [155.5, -15.5],
-          [177.378, 28.201],
-          [160.156, -9.645],
-          [173.012, 1.482],
-          [145.750, 15.177],
-          [145.0, 15.0],
-          [141.322, 24.785],
-          [127.679, 26.212]
+          [125.000, 25.000],
+          [115.000, 10.000],
+          [105.000, -5.000],
+          [130.000, -15.000]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "service": "MacArthur Southwest Pacific", 
-        "style": { "stroke": "#2E7D32", "stroke-width": 3, "stroke-dasharray": "6,4" }
+        "name": "Japanese Pearl Harbor Strike",
+        "service": "Imperial Japanese Navy",
+        "style": { "stroke": "#D0021B", "stroke-width": 3, "stroke-dasharray": "5,5" }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [160.156, -9.645],
-          [147.0, -6.0],
-          [140.0, -2.0],
-          [125.004, 11.242],
-          [125.727, 10.767]
+          [139.650, 35.676],
+          [165.000, 30.000],
+          [-150.000, 25.000],
+          [-157.858, 21.310]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "service": "Aleutian Campaign",
-        "style": { "stroke": "#111111", "stroke-width": 2, "stroke-dasharray": "6,4" }
+        "name": "US Central Pacific Drive 1943-1945",
+        "service": "US Navy & Marines",
+        "style": { "stroke": "#1F6FEB", "stroke-width": 5, "stroke-dasharray": "10,4" }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-157.858, 21.310],
+          [-165.000, 18.000],
+          [175.000, 12.000],
+          [165.000, 20.000],
+          [150.000, 25.000],
+          [140.000, 30.000]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "MacArthur's Southwest Pacific Campaign",
+        "service": "US Army & Allies",
+        "style": { "stroke": "#2E7D32", "stroke-width": 4, "stroke-dasharray": "8,3" }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [145.000, -6.000],
+          [140.000, -2.000],
+          [130.000, 5.000],
+          [125.000, 12.000],
+          [130.000, 20.000]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Northern Pacific - Aleutian Campaign",
+        "service": "US Forces",
+        "style": { "stroke": "#666666", "stroke-width": 3, "stroke-dasharray": "6,4" }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
           [-174.139, 52.903],
-          [-170.0, 54.0],
-          [-165.0, 55.0]
+          [-170.000, 54.000],
+          [-160.000, 55.000],
+          [-150.000, 58.000]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "service": "Final Assault on Japan",
-        "style": { "stroke": "#FF6B35", "stroke-width": 4, "stroke-dasharray": "6,4" }
+        "name": "Final Convergence on Japan 1945",
+        "service": "Combined Allied Forces",
+        "style": { "stroke": "#FF6B35", "stroke-width": 6, "stroke-dasharray": "12,4" }
       },
       "geometry": {
-        "type": "LineString", 
+        "type": "LineString",
         "coordinates": [
           [127.679, 26.212],
-          [132.459, 34.396],
-          [129.874, 32.744],
+          [135.000, 30.000],
           [139.650, 35.676]
         ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arrow - Japanese Expansion",
+        "service": "Direction Indicator",
+        "marker-color": "#D0021B",
+        "marker-size": "large"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [115.000, 5.000]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arrow - Pearl Harbor Strike",
+        "service": "Direction Indicator", 
+        "marker-color": "#D0021B",
+        "marker-size": "large"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-150.000, 25.000]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arrow - Central Pacific Drive",
+        "service": "Direction Indicator",
+        "marker-color": "#1F6FEB", 
+        "marker-size": "large"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [150.000, 25.000]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arrow - Southwest Pacific",
+        "service": "Direction Indicator",
+        "marker-color": "#2E7D32",
+        "marker-size": "large"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [125.000, 12.000]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arrow - Final Assault",
+        "service": "Direction Indicator",
+        "marker-color": "#FF6B35",
+        "marker-size": "large"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [135.000, 30.000]
       }
     }
   ]
