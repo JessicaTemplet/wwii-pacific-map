@@ -225,7 +225,20 @@ async function loadAndRenderTimeline(){
 
 /* ---------- Load points.csv and paths.geojson, render map ---------- */
 async function loadAndRenderMap(){
-  const map = L.map('map', { preferCanvas:true }).setView([18,145], 3);
+  // Define Pacific Theater bounds to prevent world-wrapping
+  const pacificBounds = [
+    [-40, 90],   // Southwest: Australia area, east of Asia
+    [70, -90]    // Northeast: Alaska, west coast of Americas
+  ];
+
+  const map = L.map('map', { 
+    preferCanvas: true,
+    maxBounds: pacificBounds,
+    maxBoundsViscosity: 1.0, // Prevents dragging outside bounds
+    minZoom: 2,
+    maxZoom: 10
+  }).setView([18, 145], 3);
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
     attribution: '© OpenStreetMap contributors',
     maxZoom: 18
