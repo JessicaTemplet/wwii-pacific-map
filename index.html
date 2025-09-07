@@ -23,16 +23,64 @@
     #timelineWrap{width:94%;max-width:1100px;margin:10px auto;height:var(--timeline-height)}
     #timeline{width:100%;height:100%}
     #map{width:100%;height:var(--map-height);box-shadow:0 2px 10px rgba(0,0,0,0.06)}
-    /* legend - create at bottom-left then center with CSS */
-    .legend{background:rgba(255,255,255,0.96);padding:10px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);font-size:13px;line-height:1.4;max-height:180px;overflow:auto}
-    .legend .row{display:flex;align-items:center;margin-bottom:6px}
-    .swatch{width:16px;height:12px;margin-right:8px;border-radius:3px;border:1px solid rgba(0,0,0,0.08)}
-    .symbol{width:18px;height:18px;margin-right:8px;display:inline-block;vertical-align:middle}
-    /* center bottom legend */
-    .leaflet-bottom .legend{position:absolute !important; left:50% !important; transform:translateX(-50%); bottom:12px !important}
+    
+    /* Fixed legend positioning - bottom right with better visibility */
+    .legend{
+      position: absolute !important;
+      bottom: 20px !important;
+      right: 20px !important;
+      background: rgba(255,255,255,0.95) !important;
+      padding: 12px !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+      font-size: 12px !important;
+      line-height: 1.4 !important;
+      max-width: 220px !important;
+      z-index: 1000 !important;
+      border: 1px solid rgba(0,0,0,0.1) !important;
+    }
+    .legend-title{font-weight:bold;margin-bottom:8px;color:#333;font-size:13px}
+    .legend-row{display:flex;align-items:center;margin-bottom:5px}
+    .legend-swatch{width:16px;height:12px;margin-right:8px;border-radius:3px;border:1px solid rgba(0,0,0,0.2);flex-shrink:0}
+    .legend-symbol{width:16px;height:16px;margin-right:8px;display:inline-block;vertical-align:middle;flex-shrink:0}
+    .legend-text{font-size:11px;color:#333}
+    .legend-section{margin-bottom:8px}
+    .legend-section-title{font-weight:bold;font-size:11px;color:#555;margin-bottom:3px}
+    
     /* event count badge */
     #countBadge{position:fixed;right:14px;top:14px;background:#1F6FEB;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.12);z-index:9999}
     a.source{color:#1F6FEB;text-decoration:none}
+    
+    /* Custom marker styles for numbered circles */
+    .numbered-marker {
+      background: #1F6FEB;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      font-size: 10px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .numbered-marker.japan { background: #D0021B; }
+    .numbered-marker.joint { background: #7A3EE6; }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .legend { 
+        max-width: 180px !important; 
+        font-size: 11px !important;
+        bottom: 10px !important;
+        right: 10px !important;
+      }
+      .legend-text { font-size: 10px; }
+      .numbered-marker { font-size: 9px; }
+      header h1 { font-size: 18px; }
+    }
   </style>
 </head>
 <body>
@@ -50,7 +98,10 @@
 
 <script>
 /* ---------- Helper utilities ---------- */
-function toFloat(v){ const n = parseFloat((v||'').toString().replace(/[^0-9\.\-]/g,'')); return isNaN(n) ? null : n; }
+function toFloat(v){ 
+  const n = parseFloat((v||'').toString().replace(/[^0-9\.\-]/g,'')); 
+  return isNaN(n) ? null : n; 
+}
 function stripQuotes(s){ return (s||'').toString().replace(/^"|"$/g,''); }
 
 /* ---------- Config: fallback icons (public domain/SVG) ---------- */
@@ -80,6 +131,21 @@ function makeLicon(url, size=26){
   return L.icon({ iconUrl: url, iconSize:[size,size], iconAnchor:[size/2,size/2], popupAnchor:[0,-size/2] });
 }
 
+/* Create numbered circle marker */
+function createNumberedIcon(number, side = 'USA') {
+  let markerClass = '';
+  if (side.toLowerCase() === 'japan') markerClass = 'japan';
+  else if (side.toLowerCase() === 'joint') markerClass = 'joint';
+  
+  return L.divIcon({
+    html: `<div class="numbered-marker ${markerClass}" style="width: 26px; height: 26px;">${number}</div>`,
+    className: 'custom-div-icon',
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
+    popupAnchor: [0, -13]
+  });
+}
+
 /* ---------- Load timeline.csv (PapaParse) ---------- */
 async function loadAndRenderTimeline(){
   try{
@@ -98,8 +164,20 @@ async function loadAndRenderTimeline(){
       data: {
         labels: labels,
         datasets: [
-          { label:'US Personnel', data: us, backgroundColor: '#1F6FEB' },
-          { label:'Japan Personnel', data: jp, backgroundColor: '#D0021B' }
+          { 
+            label:'US Personnel (thousands)', 
+            data: us, 
+            backgroundColor: '#1F6FEB',
+            borderColor: '#0F4C81',
+            borderWidth: 1
+          },
+          { 
+            label:'Japan Personnel (thousands)', 
+            data: jp, 
+            backgroundColor: '#D0021B',
+            borderColor: '#A0011A',
+            borderWidth: 1
+          }
         ]
       },
       options: {
@@ -107,17 +185,37 @@ async function loadAndRenderTimeline(){
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
+          title: {
+            display: true,
+            text: 'Pacific Theater Military Personnel by Year',
+            font: { size: 14 }
+          },
           tooltip: {
             callbacks: {
               afterBody: function(items){
                 const i = items[0].dataIndex || 0;
                 return notes[i] ? ('Notes: ' + notes[i]) : '';
+              },
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.x.toLocaleString();
               }
             }
           },
-          legend: { position: 'top' }
+          legend: { 
+            position: 'top',
+            labels: { usePointStyle: true }
+          }
         },
-        scales: { x: { beginAtZero:true } }
+        scales: { 
+          x: { 
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return value.toLocaleString();
+              }
+            }
+          }
+        }
       }
     });
   } catch(e) {
@@ -128,35 +226,78 @@ async function loadAndRenderTimeline(){
 /* ---------- Load points.csv and paths.geojson, render map ---------- */
 async function loadAndRenderMap(){
   const map = L.map('map', { preferCanvas:true }).setView([18,145], 3);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
 
-  // Legend: add to bottom-left, but CSS centers it
-  const legend = L.control({ position: 'bottomleft' });
+  // Create comprehensive legend
+  const legend = L.control({ position: 'bottomright' });
   legend.onAdd = () => {
-    const d = L.DomUtil.create('div','legend');
-    d.innerHTML = '<strong>Legend</strong><br>';
-    d.innerHTML += '<div class="row"><span class="swatch" style="background:#D0021B"></span>Japan offensive</div>';
-    d.innerHTML += '<div class="row"><span class="swatch" style="background:#1F6FEB"></span>USA offensive</div>';
-    d.innerHTML += '<div class="row"><span class="swatch" style="background:#7A3EE6"></span>Joint operations</div>';
-    d.innerHTML += '<div class="row"><img class="symbol" src="'+ICON_URLS.bomb+'">Major bombing</div>';
-    d.innerHTML += '<div class="row"><img class="symbol" src="'+ICON_URLS.atomic+'">Atomic</div>';
-    d.innerHTML += '<div class="row"><img class="symbol" src="'+ICON_URLS.flag+'">Surrender / flag-raising</div>';
-    return d;
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = `
+      <div class="legend-title">WWII Pacific Theater</div>
+      <div class="legend-section">
+        <div class="legend-section-title">Forces</div>
+        <div class="legend-row">
+          <span class="legend-swatch" style="background:#D0021B"></span>
+          <span class="legend-text">Japanese offensive</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-swatch" style="background:#1F6FEB"></span>
+          <span class="legend-text">US/Allied offensive</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-swatch" style="background:#7A3EE6"></span>
+          <span class="legend-text">Joint operations</span>
+        </div>
+      </div>
+      <div class="legend-section">
+        <div class="legend-section-title">Event Types</div>
+        <div class="legend-row">
+          <img class="legend-symbol" src="${ICON_URLS.bomb}" alt="bomb" onerror="this.style.display='none'">
+          <span class="legend-text">Major bombing</span>
+        </div>
+        <div class="legend-row">
+          <img class="legend-symbol" src="${ICON_URLS.atomic}" alt="atomic" onerror="this.style.display='none'">
+          <span class="legend-text">Atomic weapons</span>
+        </div>
+        <div class="legend-row">
+          <img class="legend-symbol" src="${ICON_URLS.flag}" alt="flag" onerror="this.style.display='none'">
+          <span class="legend-text">Surrender/Flag raising</span>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#666;margin-top:8px;">
+        Numbers indicate chronological order
+      </div>
+    `;
+    return div;
   };
   legend.addTo(map);
 
-  // prefetch points + paths
+  // Load data files
   const [pointsTxt, pathsJson] = await Promise.all([
-    fetch('points.csv').then(r=>r.text()),
-    fetch('paths.geojson').then(r=>r.json()).catch(()=>null)
+    fetch('points.csv').then(r=>r.text()).catch(e => {
+      console.error('Failed to load points.csv:', e);
+      return '';
+    }),
+    fetch('paths.geojson').then(r=>r.json()).catch(e => {
+      console.warn('Failed to load paths.geojson:', e);
+      return null;
+    })
   ]);
+
+  if (!pointsTxt) {
+    console.error('No points data available');
+    document.getElementById('countBadge').textContent = 'Error: No data';
+    return;
+  }
 
   const parsed = Papa.parse(pointsTxt, { header:true, skipEmptyLines:true });
   const rows = parsed.data || [];
-  document.getElementById('countBadge').textContent = 'Events: ' + rows.length;
   console.log('Parsed points rows:', rows.length);
 
-  // gather unique symbol URLs to test availability
+  // Gather unique symbol URLs to test availability
   const symbolUrls = {};
   rows.forEach(r => {
     const raw = stripQuotes(r.marker_symbol || r.marker || '');
@@ -167,15 +308,14 @@ async function loadAndRenderMap(){
     if(!raw && (r.type || '').toLowerCase().includes('flag')) symbolUrls[ICON_URLS.flag] = null;
   });
 
-  // also ensure known icons are available (these are the Wikimedia ones used heavily)
+  // Also ensure known icons are available (these are the Wikimedia ones used heavily)
   Object.values(ICON_URLS).forEach(u=>symbolUrls[u] = null);
 
-  // preload all symbol URLs
+  // Preload all symbol URLs
   const symbolKeys = Object.keys(symbolUrls);
   await Promise.all(symbolKeys.map(async url => {
     try {
       const ok = await preloadImage(url);
-      symbolUrls[url] = ok;
       if(ok) symbolUrls[url] = makeLicon(url, 28);
       else symbolUrls[url] = null;
     } catch(e){
@@ -183,89 +323,128 @@ async function loadAndRenderMap(){
     }
   }));
 
-  // add markers
+  // Add markers with proper coordinate validation
   const markerLayer = L.featureGroup();
+  let validMarkers = 0;
+  let skippedMarkers = 0;
+  
   rows.forEach((r, idx) => {
-    // columns in your CSV: id,name,start_date,end_date,lat,lon,side_offensive,domain,type,short_desc,source_url,marker_color,marker_symbol,label
-    const lat = toFloat(r.lat || r.Lat || r.Latitude);
-    const lon = toFloat(r.lon || r.Lon || r.Longitude);
-    if(lat === null || lon === null) {
-      console.warn('Skipping invalid coords row', idx, r);
+    // Multiple possible column names for coordinates
+    const lat = toFloat(r.lat || r.Lat || r.Latitude || r.latitude);
+    const lon = toFloat(r.lon || r.Lon || r.Longitude || r.longitude);
+    
+    // Strict coordinate validation to prevent North Pole markers
+    if(lat === null || lon === null || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      console.warn('Skipping invalid coords row', idx, 'lat:', lat, 'lon:', lon, 'name:', r.name);
+      skippedMarkers++;
       return;
     }
-    const label = stripQuotes(r.label || r.Label || r.name || r.Name || '');
-    const short_desc = stripQuotes(r.short_desc || r.Short_desc || r.short || r.description || '');
-    const source = stripQuotes(r.source_url || r.source || '');
-    const color = stripQuotes(r.marker_color || '#1F6FEB');
-    let rawSymbol = stripQuotes(r.marker_symbol || r.marker || '');
-
-    // detect if rawSymbol is a URL and has a preloaded icon
+    
+    // Extract all relevant data
+    const name = stripQuotes(r.name || r.Name || '');
+    const label = stripQuotes(r.label || r.Label || name);
+    const short_desc = stripQuotes(r.short_desc || r.Short_desc || r.description || r.Description || '');
+    const source = stripQuotes(r.source_url || r.source || r.Source_url || r.Source || '');
+    const color = stripQuotes(r.marker_color || r.color || '#1F6FEB');
+    let rawSymbol = stripQuotes(r.marker_symbol || r.marker || r.symbol || '');
+    const sideOffensive = stripQuotes(r.side_offensive || r.Side_offensive || 'USA');
+    const type = stripQuotes(r.type || r.Type || '').toLowerCase();
+    
     let marker = null;
+    
+    // Detect if rawSymbol is a URL and has a preloaded icon
     if(rawSymbol && rawSymbol.toLowerCase().startsWith('http') && symbolUrls[rawSymbol]) {
       marker = L.marker([lat,lon], { icon: symbolUrls[rawSymbol] });
-    } else if(rawSymbol && symbolUrls[rawSymbol]) {
-      // rawSymbol equals a known URL key (rare)
-      marker = L.marker([lat,lon], { icon: symbolUrls[rawSymbol] });
-    } else {
-      // if csv used keywords like "bomb" "atomic" "flag" use ICON_URLS mapping if available
-      const kw = rawSymbol.toLowerCase();
-      if(kw === 'bomb' && symbolUrls[ICON_URLS.bomb]) marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.bomb] });
-      else if(kw === 'atomic' && symbolUrls[ICON_URLS.atomic]) marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.atomic] });
-      else if(kw.includes('flag') && symbolUrls[ICON_URLS.flag]) marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.flag] });
+    } 
+    // Check for keyword-based icons
+    else if(rawSymbol === 'bomb' && symbolUrls[ICON_URLS.bomb]) {
+      marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.bomb] });
+    }
+    else if(rawSymbol === 'atomic' && symbolUrls[ICON_URLS.atomic]) {
+      marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.atomic] });
+    }
+    else if(rawSymbol === 'flag' && symbolUrls[ICON_URLS.flag]) {
+      marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.flag] });
+    }
+    // Auto-detect based on event type
+    else if(type.includes('bombing') && symbolUrls[ICON_URLS.bomb]) {
+      marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.bomb] });
+    }
+    else if(type.includes('atomic') && symbolUrls[ICON_URLS.atomic]) {
+      marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.atomic] });
+    }
+    else if((type.includes('flag') || type.includes('surrender')) && symbolUrls[ICON_URLS.flag]) {
+      marker = L.marker([lat,lon], { icon: symbolUrls[ICON_URLS.flag] });
     }
 
-    // If still no marker (either no icon or icon failed), draw colored circle marker
+    // If still no marker (either no icon or icon failed), create numbered marker
     if(!marker){
-      marker = L.circleMarker([lat,lon], {
-        radius: 6,
-        fillColor: color,
-        color: "#222",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.9
-      });
+      const number = rawSymbol || (idx + 1);
+      marker = L.marker([lat,lon], { icon: createNumberedIcon(number, sideOffensive) });
     }
 
-    const popup = `<strong>${label || ''}</strong><br>${short_desc || ''}${source ? ('<br><a class="source" href="'+source+'" target="_blank" rel="noopener">Source</a>') : ''}`;
+    // Create popup with rich content
+    let popup = `<strong>${label || name || 'Event ' + (idx + 1)}</strong>`;
+    if(short_desc) popup += `<br>${short_desc}`;
+    if(source) popup += `<br><a class="source" href="${source}" target="_blank" rel="noopener">Source</a>`;
+    
     marker.addTo(markerLayer).bindPopup(popup, { maxWidth: 320, keepInView:true });
+    validMarkers++;
   });
 
   markerLayer.addTo(map);
+  console.log(`Added ${validMarkers} valid markers, skipped ${skippedMarkers} invalid markers`);
 
   // Add paths if present
-  if(pathsJson){
+  if(pathsJson && pathsJson.features){
     L.geoJSON(pathsJson, {
       style: f => {
         const p = f.properties || {};
         const s = p.style || {};
-        const color = s.color || s.stroke || '#555';
+        const color = s.stroke || s.color || '#555';
         const weight = s['stroke-width'] || s.weight || 2;
-        const dash = s['dashArray'] || s['stroke-dasharray'] || '6,4';
-        return { color: color, weight: weight, dashArray: dash, opacity: 0.9 };
+        const dashArray = s['stroke-dasharray'] || s.dashArray || '6,4';
+        const opacity = s.opacity || 0.7;
+        return { color: color, weight: weight, dashArray: dashArray, opacity: opacity };
       },
       onEachFeature: (f,l) => {
-        if(f.properties && f.properties.service) l.bindPopup('<strong>'+f.properties.service+'</strong>');
+        if(f.properties) {
+          const service = f.properties.service || f.properties.name || 'Military Operation';
+          l.bindPopup(`<strong>${service}</strong>`);
+        }
       }
     }).addTo(map);
+    console.log('Added campaign paths from GeoJSON');
   }
 
   // Fit bounds to markers if we have any
   if(markerLayer.getLayers().length > 0){
-    try { map.fitBounds(markerLayer.getBounds().pad(0.12)); }
-    catch(e){ console.warn('fitBounds failed', e); }
+    try { 
+      map.fitBounds(markerLayer.getBounds().pad(0.05)); 
+    } catch(e){ 
+      console.warn('fitBounds failed:', e); 
+    }
   }
 
-  // Update the badge with the number of markers actually added (after any skips)
-  document.getElementById('countBadge').textContent = 'Events: ' + markerLayer.getLayers().length;
+  // Update badge with final count
+  document.getElementById('countBadge').textContent = `Events: ${validMarkers}${skippedMarkers > 0 ? ` (${skippedMarkers} skipped)` : ''}`;
 }
 
-/* ---------- Start everything ---------- */
+/* ---------- Error handling and startup ---------- */
+window.addEventListener('error', function(e) {
+  console.error('Global error:', e.error);
+});
+
 (async function(){
   try {
+    console.log('Starting application...');
     await loadAndRenderTimeline();
+    console.log('Timeline loaded successfully');
     await loadAndRenderMap();
+    console.log('Map loaded successfully');
   } catch(e) {
-    console.error('Startup error', e);
+    console.error('Startup error:', e);
+    document.getElementById('countBadge').textContent = 'Error loading';
   }
 })();
 </script>
