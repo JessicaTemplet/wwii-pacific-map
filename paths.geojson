@@ -4,171 +4,147 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Japanese Southern Expansion 1941-1942",
-        "service": "Imperial Japanese Forces",
-        "style": { "stroke": "#D0021B", "stroke-width": 4, "stroke-dasharray": "8,3" }
+        "name": "Japanese Empire 1931",
+        "service": "Japanese Territory",
+        "style": { "stroke": "#8B4513", "stroke-width": 2, "fill": "#DEB887", "fillOpacity": 0.3 }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [129.0, 45.0], [145.0, 45.0], [145.0, 30.0], [129.0, 30.0], [129.0, 45.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Maximum Japanese Expansion 1942",
+        "service": "Extent of Japanese Control",
+        "style": { "stroke": "#D0021B", "stroke-width": 3, "stroke-dasharray": "8,8", "fill": "none" }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [139.650, 35.676],
-          [125.000, 25.000],
-          [115.000, 10.000],
-          [105.000, -5.000],
-          [130.000, -15.000]
+          [173.0, -174.0],
+          [165.0, 55.0],
+          [120.0, 50.0],
+          [95.0, 25.0],
+          [95.0, -10.0],
+          [120.0, -15.0],
+          [155.0, -15.0],
+          [175.0, -5.0],
+          [180.0, 10.0],
+          [175.0, 25.0],
+          [173.0, -174.0]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Japanese Pearl Harbor Strike",
+        "name": "Japanese Southern Advance 1941-1942",
+        "service": "Imperial Japanese Army/Navy", 
+        "style": { "stroke": "#D0021B", "stroke-width": 6, "stroke-opacity": 0.8 }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [139.7, 35.7],
+          [130.0, 25.0],
+          [120.0, 15.0],
+          [110.0, 5.0],
+          [105.0, -5.0]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Japanese Pacific Strike 1941-1942",
         "service": "Imperial Japanese Navy",
-        "style": { "stroke": "#D0021B", "stroke-width": 3, "stroke-dasharray": "5,5" }
+        "style": { "stroke": "#D0021B", "stroke-width": 6, "stroke-opacity": 0.8 }
       },
       "geometry": {
-        "type": "LineString",
+        "type": "LineString", 
         "coordinates": [
-          [139.650, 35.676],
-          [165.000, 30.000],
-          [-150.000, 25.000],
-          [-157.858, 21.310]
+          [139.7, 35.7],
+          [170.0, 30.0],
+          [180.0, 25.0],
+          [-170.0, 20.0],
+          [-157.9, 21.3]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "US Central Pacific Drive 1943-1945",
+        "name": "US Central Pacific Offensive 1943-1945",
         "service": "US Navy & Marines",
-        "style": { "stroke": "#1F6FEB", "stroke-width": 5, "stroke-dasharray": "10,4" }
+        "style": { "stroke": "#1F6FEB", "stroke-width": 8, "stroke-opacity": 0.9 }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-157.858, 21.310],
-          [-165.000, 18.000],
-          [175.000, 12.000],
-          [165.000, 20.000],
-          [150.000, 25.000],
-          [140.000, 30.000]
+          [-157.9, 21.3],
+          [-140.0, 18.0],
+          [175.0, 15.0],
+          [165.0, 20.0],
+          [150.0, 25.0],
+          [145.0, 30.0],
+          [139.7, 35.7]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "MacArthur's Southwest Pacific Campaign",
+        "name": "MacArthur Southwest Pacific 1943-1945",
         "service": "US Army & Allies",
-        "style": { "stroke": "#2E7D32", "stroke-width": 4, "stroke-dasharray": "8,3" }
+        "style": { "stroke": "#2E7D32", "stroke-width": 6, "stroke-opacity": 0.8 }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [145.000, -6.000],
-          [140.000, -2.000],
-          [130.000, 5.000],
-          [125.000, 12.000],
-          [130.000, 20.000]
+          [145.0, -9.0],
+          [140.0, -5.0],
+          [135.0, 0.0],
+          [130.0, 8.0],
+          [125.0, 15.0],
+          [135.0, 25.0]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Northern Pacific - Aleutian Campaign",
-        "service": "US Forces",
-        "style": { "stroke": "#666666", "stroke-width": 3, "stroke-dasharray": "6,4" }
+        "name": "Northern Pacific Campaign 1942-1943",
+        "service": "US/Canadian Forces",
+        "style": { "stroke": "#4682B4", "stroke-width": 4, "stroke-opacity": 0.7 }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-174.139, 52.903],
-          [-170.000, 54.000],
-          [-160.000, 55.000],
-          [-150.000, 58.000]
+          [-150.0, 60.0],
+          [-165.0, 58.0],
+          [-174.1, 52.9],
+          [-170.0, 50.0]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Final Convergence on Japan 1945",
-        "service": "Combined Allied Forces",
-        "style": { "stroke": "#FF6B35", "stroke-width": 6, "stroke-dasharray": "12,4" }
+        "name": "Allied Bomber Offensive 1944-1945",
+        "service": "US Army Air Forces",
+        "style": { "stroke": "#FF4500", "stroke-width": 4, "stroke-dasharray": "6,6", "stroke-opacity": 0.8 }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [127.679, 26.212],
-          [135.000, 30.000],
-          [139.650, 35.676]
+          [145.7, 15.2],
+          [142.0, 25.0],
+          [139.7, 35.7]
         ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Arrow - Japanese Expansion",
-        "service": "Direction Indicator",
-        "marker-color": "#D0021B",
-        "marker-size": "large"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [115.000, 5.000]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Arrow - Pearl Harbor Strike",
-        "service": "Direction Indicator", 
-        "marker-color": "#D0021B",
-        "marker-size": "large"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-150.000, 25.000]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Arrow - Central Pacific Drive",
-        "service": "Direction Indicator",
-        "marker-color": "#1F6FEB", 
-        "marker-size": "large"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [150.000, 25.000]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Arrow - Southwest Pacific",
-        "service": "Direction Indicator",
-        "marker-color": "#2E7D32",
-        "marker-size": "large"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [125.000, 12.000]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Arrow - Final Assault",
-        "service": "Direction Indicator",
-        "marker-color": "#FF6B35",
-        "marker-size": "large"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [135.000, 30.000]
       }
     }
   ]
