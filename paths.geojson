@@ -4,68 +4,89 @@
     {
       "type": "Feature",
       "properties": {
-        "service": "Japan",
-        "style": { "stroke": "#D0021B", "stroke-width": 2, "stroke-dasharray": "6,4" }
+        "service": "Japanese Expansion",
+        "style": { "stroke": "#D0021B", "stroke-width": 3, "stroke-dasharray": "6,4" }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [116.488, 39.864],
-          [121.0, 15.0],
-          [114.2, 22.3],
-          [166.6, 19.3],
-          [157.95, 21.364]
+          [139.650, 35.676],
+          [116.229, 39.864],
+          [120.984, 14.599],
+          [114.109, 22.396],
+          [166.647, 19.282],
+          [-157.948, 21.362],
+          [103.820, 1.352],
+          [130.842, -12.462]
+        ]
+      }
+    },
+    {
+      "type": "Feature", 
+      "properties": {
+        "service": "US Navy Central Pacific",
+        "style": { "stroke": "#1F6FEB", "stroke-width": 3, "stroke-dasharray": "6,4" }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-157.948, 21.362],
+          [155.5, -15.5],
+          [177.378, 28.201],
+          [160.156, -9.645],
+          [173.012, 1.482],
+          [145.750, 15.177],
+          [145.0, 15.0],
+          [141.322, 24.785],
+          [127.679, 26.212]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "service": "US Navy",
-        "style": { "stroke": "#1F6FEB", "stroke-width": 2, "stroke-dasharray": "6,4" }
+        "service": "MacArthur Southwest Pacific", 
+        "style": { "stroke": "#2E7D32", "stroke-width": 3, "stroke-dasharray": "6,4" }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [157.95, 21.364],
-          [154.0, -15.0],
-          [28.2, -177.4],
-          [-9.4, 160.0],
-          [15.2, 145.7],
-          [10.9, 125.0],
-          [24.8, 141.3],
-          [26.3, 127.9]
+          [160.156, -9.645],
+          [147.0, -6.0],
+          [140.0, -2.0],
+          [125.004, 11.242],
+          [125.727, 10.767]
         ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "service": "US Army",
-        "style": { "stroke": "#2E7D32", "stroke-width": 2, "stroke-dasharray": "6,4" }
-      },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [15.0, 121.0],
-          [15.2, 145.7],
-          [10.9, 125.0]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "service": "US Marines",
+        "service": "Aleutian Campaign",
         "style": { "stroke": "#111111", "stroke-width": 2, "stroke-dasharray": "6,4" }
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [28.2, -177.4],
-          [-9.4, 160.0],
-          [24.8, 141.3],
-          [26.3, 127.9]
+          [-174.139, 52.903],
+          [-170.0, 54.0],
+          [-165.0, 55.0]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "service": "Final Assault on Japan",
+        "style": { "stroke": "#FF6B35", "stroke-width": 4, "stroke-dasharray": "6,4" }
+      },
+      "geometry": {
+        "type": "LineString", 
+        "coordinates": [
+          [127.679, 26.212],
+          [132.459, 34.396],
+          [129.874, 32.744],
+          [139.650, 35.676]
         ]
       }
     }
