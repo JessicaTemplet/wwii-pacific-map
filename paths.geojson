@@ -1,0 +1,95 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type":"Feature",
+      "geometry": {
+        "type":"LineString",
+        "coordinates": [
+          [-157.9650,21.3643],
+          [-166.6270,19.2828],
+          [144.7937,13.4443],
+          [139.6917,35.6895]
+        ]
+      },
+      "properties": {
+        "service":"US Navy",
+        "campaign":"Pacific approach / Carrier raid route (Pearl -> Wake -> Guam -> Japan)",
+        "style": { "stroke":"#1F6FEB", "stroke-width":2, "stroke-dasharray":"6,4" }
+      }
+    },
+    {
+      "type":"Feature",
+      "geometry": {
+        "type":"LineString",
+        "coordinates": [
+          [-157.9650,21.3643],
+          [152.0000,18.0000],
+          [-177.3500,28.2000],
+          [160.1562,-9.6460]
+        ]
+      },
+      "properties": {
+        "service":"US Navy",
+        "campaign":"Central Pacific / Island hopping (Pearl -> Coral Sea -> Midway -> Guadalcanal)",
+        "style": { "stroke":"#1F6FEB", "stroke-width":2, "stroke-dasharray":"6,4" }
+      }
+    },
+    {
+      "type":"Feature",
+      "geometry": {
+        "type":"LineString",
+        "coordinates": [
+          [-157.9650,21.3643],
+          [145.7170,15.1510],
+          [141.3333,24.7833],
+          [127.8056,26.3344],
+          [139.7626,35.6272]
+        ]
+      },
+      "properties": {
+        "service":"US Marines",
+        "campaign":"Marianas -> Iwo Jima -> Okinawa -> approach to Japan",
+        "style": { "stroke":"#111111", "stroke-width":2, "stroke-dasharray":"6,4" }
+      }
+    },
+    {
+      "type":"Feature",
+      "geometry": {
+        "type":"LineString",
+        "coordinates": [
+          [120.9842,14.5995],
+          [123.8907,10.3167],
+          [125.1667,10.7000]
+        ]
+      },
+      "properties": {
+        "service":"US Army",
+        "campaign":"Philippines approach (Leyte -> Leyte Gulf)",
+        "style": { "stroke":"#2E7D32", "stroke-width":2, "stroke-dasharray":"6,4" }
+      }
+    },
+
+    /* Arrowhead points (one near the end of each LineString) */
+    {
+      "type":"Feature",
+      "geometry": { "type":"Point", "coordinates":[-157.9650,21.3643] },
+      "properties": { "marker_symbol":"triangle", "marker_color":"#1F6FEB", "service":"US Navy" }
+    },
+    {
+      "type":"Feature",
+      "geometry": { "type":"Point", "coordinates":[160.1562,-9.6460] },
+      "properties": { "marker_symbol":"triangle", "marker_color":"#1F6FEB", "service":"US Navy" }
+    },
+    {
+      "type":"Feature",
+      "geometry": { "type":"Point", "coordinates":[141.3333,24.7833] },
+      "properties": { "marker_symbol":"triangle", "marker_color":"#111111", "service":"US Marines" }
+    },
+    {
+      "type":"Feature",
+      "geometry": { "type":"Point", "coordinates":[125.1667,10.7000] },
+      "properties": { "marker_symbol":"triangle", "marker_color":"#2E7D32", "service":"US Army" }
+    }
+  ]
+}
