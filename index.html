@@ -1,168 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Righteous Might: Victory over Japan in WWII</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WWII Pacific Events Map</title>
 
-<!-- MapLibre GL JS -->
-<link href="https://unpkg.com/maplibre-gl@2.7.0/dist/maplibre-gl.css" rel="stylesheet"/>
-<script src="https://unpkg.com/maplibre-gl@2.7.0/dist/maplibre-gl.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
-<!-- PapaParse for CSV -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-<style>
-  body { margin:0; font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f8f9fa; color:#111; }
-  header { padding:12px 16px; text-align:center; }
-  header h1 { margin:0; font-size:20px; }
-  #map { width:100%; height:94vh; }
-  
-  /* Legend styling */
-  .legend {
-    position:absolute;
-    bottom:20px;
-    right:20px;
-    background: rgba(255,255,255,0.95);
-    padding:12px;
-    border-radius:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.15);
-    font-size:12px;
-    line-height:1.4;
-    max-width:220px;
-    border:1px solid rgba(0,0,0,0.1);
-    z-index:10;
-  }
-  .legend-title { font-weight:bold; margin-bottom:8px; color:#333; font-size:13px; }
-  .legend-row { display:flex; align-items:center; margin-bottom:5px; }
-  .legend-swatch { width:16px; height:12px; margin-right:8px; border-radius:3px; border:1px solid rgba(0,0,0,0.2); flex-shrink:0; }
-  .legend-text { font-size:11px; color:#333; }
-
-  /* Event count badge */
-  #countBadge {
-    position:fixed; right:14px; top:14px;
-    background:#1F6FEB; color:#fff;
-    padding:6px 10px; border-radius:999px;
-    font-size:13px; box-shadow:0 2px 8px rgba(0,0,0,0.12); z-index:9999;
-  }
-
-  /* Custom markers */
-  .marker { display:flex; justify-content:center; align-items:center; font-weight:bold; color:#fff; border-radius:50%; width:26px; height:26px; border:2px solid #fff; box-shadow:0 2px 4px rgba(0,0,0,0.2); }
-  .marker.USA { background:#1F6FEB; }
-  .marker.Japan { background:#D0021B; }
-  .marker.joint { background:#7A3EE6; }
-</style>
+  <style>
+    body { margin:0; font-family: sans-serif; }
+    #map { height: 90vh; width: 100%; }
+    header { padding: 10px; text-align: center; background: #f8f9fa; font-size: 20px; font-weight: bold; }
+    .legend { background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 12px; }
+    .legend div { margin-bottom: 4px; }
+    .marker-number { 
+      background: #1F6FEB; color: #fff; border-radius: 50%; width: 24px; height: 24px; 
+      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;
+      border: 2px solid #fff;
+    }
+    .marker-japan { background: #D0021B; }
+  </style>
 </head>
 <body>
+  <header>WWII Pacific Theater Events</header>
+  <div id="map"></div>
 
-<header><h1>Righteous Might: Victory over Japan in WWII</h1></header>
-<div id="map"></div>
-<div id="countBadge" aria-live="polite">Events: —</div>
-<div class="legend">
-  <div class="legend-title">WWII Pacific Theater</div>
-  <div class="legend-row"><span class="legend-swatch" style="background:#D0021B;"></span><span class="legend-text">Japanese offensive</span></div>
-  <div class="legend-row"><span class="legend-swatch" style="background:#1F6FEB;"></span><span class="legend-text">US/Allied offensive</span></div>
-  <div class="legend-row"><span class="legend-swatch" style="background:#7A3EE6;"></span><span class="legend-text">Joint operations</span></div>
-  <div class="legend-row"><span class="legend-swatch">&#x1F4A3;</span><span class="legend-text">Major bombing</span></div>
-  <div class="legend-row"><span class="legend-swatch">&#x2622;&#xFE0F;</span><span class="legend-text">Atomic weapons</span></div>
-  <div class="legend-row"><span class="legend-swatch">&#x1F3F3;&#xFE0F;</span><span class="legend-text">Surrender/Flag raising</span></div>
-  <div style="font-size:10px;color:#666;margin-top:8px;">Numbers indicate chronological order</div>
-</div>
+  <script>
+    // ---------------- CSV DATA ----------------
+    const csvData = `id,name,start_date,end_date,lat,lon,side_offensive,tooltip_html
+1,Mukden Incident,1931-09-18,,41.805,123.431,Japan,"Japanese forces stage false flag attack on railway to justify Manchuria invasion"
+4,Pearl Harbor,1941-12-07,,21.3099,-157.8581,Japan,"Surprise attack on US Pacific Fleet kills 2400+ and brings America into WWII"
+14,Doolittle Raid,1942-04-18,,35.676,139.650,USA,"First US air attack on Japanese home islands boosts American morale"
+17,Midway,1942-06-04,1942-06-07,28.201,177.378,USA,"Decisive US victory sinks four Japanese carriers and turns tide in Pacific"
+18,Guadalcanal,1942-08-07,1943-02-09,-9.645,160.156,USA,"Six-month campaign establishes first major Allied offensive victory in Pacific"
+29,Iwo Jima,1945-02-19,1945-03-26,24.785,141.322,USA,"Bloodiest Pacific battle costs 36000 US casualties to secure strategic airfield"
+35,Hiroshima,1945-08-06,,34.396,132.459,USA,"First atomic weapon used in warfare destroys city and kills 80000+ instantly"
+36,Nagasaki,1945-08-09,,32.744,129.874,USA,"Second atomic weapon forces Japan's surrender decision; 70000+ killed immediately"
+38,Surrender Signing,1945-09-02,,35.454,139.638,USA,"Formal Japanese surrender signed aboard USS Missouri in Tokyo Bay ends WWII"
+`;
 
-<script>
-// ---------------- CSV data (shortened example, replace with your full CSV) ----------------
-const csvData = `id,name,start_date,end_date,lat,lon,side_offensive,domain,type,short_desc,source_url,marker_color,marker_symbol,label
-1,Pearl Harbor,1941-12-07,,21.3099,-157.8581,Japan,air,battle,Surprise attack on US Pacific Fleet kills 2400+,https://www.nationalww2museum.org,#D0021B,4,04. Pearl Harbor (Dec 7 1941)
-2,Midway,1942-06-04,1942-06-07,28.201,177.378,USA,sea,battle,Decisive US victory sinks four Japanese carriers,https://www.history.navy.mil,#1F6FEB,17,17. Midway (Jun 4-7 1942)
-3,Iwo Jima,1945-02-19,1945-03-26,24.785,141.322,USA,combined,battle,Bloodiest Pacific battle costs 36000 US casualties,https://www.history.com,#1F6FEB,29,29. Iwo Jima (Feb 19 - Mar 26 1945)`;
+    // ---------------- INIT MAP ----------------
+    const map = L.map('map').setView([20,150],3);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-// ---------------- GeoJSON lines example ----------------
-const geoJsonData = {
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type":"Feature",
-      "properties":{"name":"US Central Pacific Offensive 1943-1945","style":{"color":"#1F6FEB","width":4}},
-      "geometry":{"type":"LineString","coordinates":[[-157.9,21.3],[-140.0,18.0],[175.0,15.0],[165.0,20.0],[150.0,25.0]]}
-    },
-    {
-      "type":"Feature",
-      "properties":{"name":"Japanese Southern Advance 1941-1942","style":{"color":"#D0021B","width":3}},
-      "geometry":{"type":"LineString","coordinates":[[139.7,35.7],[130.0,25.0],[120.0,15.0],[110.0,5.0],[105.0,-5.0]]}
+    // ---------------- PARSE CSV AND ADD MARKERS ----------------
+    const parsed = Papa.parse(csvData, { header:true, skipEmptyLines:true });
+    const markers = [];
+    parsed.data.forEach((row, idx) => {
+      const lat = parseFloat(row.lat);
+      const lon = parseFloat(row.lon);
+      if(isNaN(lat) || isNaN(lon)) return;
+
+      // Numbered marker
+      const divIcon = L.divIcon({
+        html: `<div class="marker-number ${row.side_offensive==="Japan"?"marker-japan":""}">${row.id}</div>`,
+        className: 'custom-div-icon',
+        iconSize: [24,24],
+        iconAnchor: [12,12]
+      });
+
+      const marker = L.marker([lat, lon], { icon: divIcon })
+        .bindPopup(`<strong>${row.name}</strong><br>${row.tooltip_html}<br><em>${row.start_date || ''}</em>`)
+        .addTo(map);
+
+      markers.push(marker);
+    });
+
+    // Fit map bounds to all markers
+    if(markers.length>0){
+      const group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.2));
     }
-  ]
-};
 
-// ---------------- Helper ----------------
-function createHTMLMarker(symbol, side='USA') {
-  const div = document.createElement('div');
-  div.className = 'marker ' + side;
-  div.innerHTML = symbol;
-  return div;
-}
-
-// ---------------- Initialize map ----------------
-const map = new maplibregl.Map({
-  container: 'map',
-  style: 'https://demotiles.maplibre.org/style.json',
-  center: [150,20],
-  zoom: 3,
-  worldCopyJump:true
-});
-
-// Add navigation controls
-map.addControl(new maplibregl.NavigationControl());
-
-// ---------------- Parse CSV ----------------
-const parsed = Papa.parse(csvData,{header:true,skipEmptyLines:true});
-const rows = parsed.data;
-let bounds = new maplibregl.LngLatBounds();
-let validMarkers=0;
-
-// ---------------- Add markers ----------------
-rows.forEach(r=>{
-  const lat=parseFloat(r.lat), lon=parseFloat(r.lon);
-  if(isNaN(lat)||isNaN(lon)) return;
-  validMarkers++;
-  
-  let symbol = r.marker_symbol || r.id;
-  const side = (r.side_offensive==='Japan')?'Japan':'USA';
-  
-  const el = createHTMLMarker(symbol,side);
-  
-  const marker = new maplibregl.Marker(el)
-    .setLngLat([lon,lat])
-    .setPopup(new maplibregl.Popup({offset:25}).setHTML(`<strong>${r.label}</strong><br>${r.short_desc}<br><a href="${r.source_url}" target="_blank">Source</a>`))
-    .addTo(map);
-  
-  bounds.extend([lon,lat]);
-});
-
-// ---------------- Add GeoJSON lines ----------------
-map.on('load',()=>{
-  geoJsonData.features.forEach((f,idx)=>{
-    map.addSource('line'+idx,{
-      "type":"geojson",
-      "data":f
-    });
-    map.addLayer({
-      "id":"line"+idx,
-      "type":"line",
-      "source":"line"+idx,
-      "layout":{"line-join":"round","line-cap":"round"},
-      "paint":{
-        "line-color":f.properties.style.color||'#555',
-        "line-width":f.properties.style.width||2
-      }
-    });
-    f.geometry.coordinates.forEach(c=>bounds.extend(c));
-  });
-
-  // Fit map to bounds
-  if(validMarkers>0) map.fitBounds(bounds,{padding:50});
-  document.getElementById('countBadge').textContent=`Events: ${validMarkers}`;
-});
-</script>
-
+    // ---------------- LEGEND ----------------
+    const legend = L.control({position:'bottomright'});
+    legend.onAdd = function(map){
+      const div = L.DomUtil.create('div','legend');
+      div.innerHTML = `
+        <div><strong>Legend</strong></div>
+        <div><span style="display:inline-block;width:12px;height:12px;background:#D0021B;margin-right:5px;"></span>Japanese offensive</div>
+        <div><span style="display:inline-block;width:12px;height:12px;background:#1F6FEB;margin-right:5px;"></span>US/Allied offensive</div>
+      `;
+      return div;
+    };
+    legend.addTo(map);
+  </script>
 </body>
 </html>
