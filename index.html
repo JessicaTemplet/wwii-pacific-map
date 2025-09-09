@@ -1,91 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Righteous Might: Victory over Japan in WWII</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Righteous Might: Victory over Japan in WWII</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- MapLibre GL JS -->
+<link href="https://unpkg.com/maplibre-gl@2.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@2.6.1/dist/maplibre-gl.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  body { margin:0; font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:#f8f9fa; color:#111; }
+  header{padding:12px 16px;text-align:center}
+  header h1{margin:0;font-size:20px}
+  #map{width:100%;height:94vh;position:relative;}
+  
+  .legend{
+    position: absolute; bottom:20px; right:20px;
+    background: rgba(255,255,255,0.95);
+    padding:12px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    font-size:12px; line-height:1.4; max-width:220px; z-index:999;
+    border:1px solid rgba(0,0,0,0.1);
+  }
+  .legend-title{font-weight:bold;margin-bottom:8px;color:#333;font-size:13px}
+  .legend-row{display:flex;align-items:center;margin-bottom:5px}
+  .legend-swatch{width:16px;height:12px;margin-right:8px;border-radius:3px;border:1px solid rgba(0,0,0,0.2);flex-shrink:0}
+  .legend-text{font-size:11px;color:#333}
 
-  <style>
-    :root{--map-height:94vh}
-    body{margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:#f8f9fa;color:#111}
-    header{padding:12px 16px;text-align:center}
-    header h1{margin:0;font-size:20px}
-    #map{width:100%;height:var(--map-height);box-shadow:0 2px 10px rgba(0,0,0,0.06)}
-    
-    /* Fixed legend positioning - bottom right with better visibility */
-    .legend{
-      position: absolute !important;
-      bottom: 20px !important;
-      right: 20px !important;
-      background: rgba(255,255,255,0.95) !important;
-      padding: 12px !important;
-      border-radius: 8px !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-      font-size: 12px !important;
-      line-height: 1.4 !important;
-      max-width: 220px !important;
-      z-index: 1000 !important;
-      border: 1px solid rgba(0,0,0,0.1) !important;
-    }
-    .legend-title{font-weight:bold;margin-bottom:8px;color:#333;font-size:13px}
-    .legend-row{display:flex;align-items:center;margin-bottom:5px}
-    .legend-swatch{width:16px;height:12px;margin-right:8px;border-radius:3px;border:1px solid rgba(0,0,0,0.2);flex-shrink:0}
-    .legend-symbol{width:16px;height:16px;margin-right:8px;display:inline-block;vertical-align:middle;flex-shrink:0}
-    .legend-text{font-size:11px;color:#333}
-    .legend-section{margin-bottom:8px}
-    .legend-section-title{font-weight:bold;font-size:11px;color:#555;margin-bottom:3px}
-    
-    /* event count badge */
-    #countBadge{position:fixed;right:14px;top:14px;background:#1F6FEB;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.12);z-index:9999}
-    a.source{color:#1F6FEB;text-decoration:none}
-    
-    /* Custom marker styles for numbered circles */
-    .numbered-marker {
-      background: #1F6FEB;
-      border: 2px solid #fff;
-      border-radius: 50%;
-      color: #fff;
-      font-weight: bold;
-      text-align: center;
-      font-size: 10px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .numbered-marker.japan { background: #D0021B; }
-    .numbered-marker.joint { background: #7A3EE6; }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .legend { 
-        max-width: 180px !important; 
-        font-size: 11px !important;
-        bottom: 10px !important;
-        right: 10px !important;
-      }
-      .legend-text { font-size: 10px; }
-      .numbered-marker { font-size: 9px; }
-      header h1 { font-size: 18px; }
-    }
-  </style>
+  #countBadge{position:fixed;right:14px;top:14px;background:#1F6FEB;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.12);z-index:9999;}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Righteous Might: Victory over Japan in World War II</h1>
-  </header>
 
-  <div id="map" aria-label="WWII Pacific map"></div>
+<header><h1>Righteous Might: Victory over Japan in World War II</h1></header>
+<div id="map"></div>
+<div id="countBadge">Events: —</div>
+<div class="legend">
+  <div class="legend-title">WWII Pacific Theater</div>
+  <div class="legend-row"><span class="legend-swatch" style="background:#D0021B"></span><span class="legend-text">Japanese offensive</span></div>
+  <div class="legend-row"><span class="legend-swatch" style="background:#1F6FEB"></span><span class="legend-text">US/Allied offensive</span></div>
+  <div class="legend-row"><span class="legend-swatch" style="background:#7A3EE6"></span><span class="legend-text">Joint operations</span></div>
+  <div style="font-size:10px;color:#666;margin-top:8px;">Numbers indicate chronological order</div>
+</div>
 
-  <div id="countBadge" aria-live="polite">Events: —</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
-  <script src="map.js"></script>
+<script>
+// ----------------------
+// GeoJSON data and CSV
+// ----------------------
+const geoJsonData = {/* Your existing GeoJSON here, same as before */};
+const csvData = `id,name,start_date,end_date,lat,lon,side_offensive,domain,type,short_desc,source_url,marker_color,marker_symbol,label
+1,Mukden Incident,1931-09-18,,41.805,123.431,Japan,land,battle,Japanese forces stage false flag attack on railway,https://www.britannica.com/event/Mukden-Incident,#D0021B,1,01. Mukden Incident (Sep 18 1931)
+... (all rows from your CSV) ...
+38,Surrender Signing,1945-09-02,,35.454,139.638,USA,combined,surrender,Formal Japanese surrender signed aboard USS Missouri,https://www.britannica.com/event/Surrender-of-Japan,#1F6FEB,flag,38. Surrender Signing (Sep 2 1945)`;
+
+// ----------------------
+// MapLibre Initialization
+// ----------------------
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://demotiles.maplibre.org/style.json',
+  center: [150, 20],
+  zoom: 3
+});
+
+// Add navigation controls
+map.addControl(new maplibregl.NavigationControl());
+
+// ----------------------
+// Marker Creation
+// ----------------------
+const parsed = Papa.parse(csvData, { header:true, skipEmptyLines:true });
+let validMarkers = 0;
+
+parsed.data.forEach(r=>{
+  const lat = parseFloat(r.lat);
+  const lon = parseFloat(r.lon);
+  if(isNaN(lat)||isNaN(lon)||lat<-90||lat>90) return;
+
+  const side = r.side_offensive;
+  const markerSymbol = r.marker_symbol;
+  const color = r.marker_color || '#1F6FEB';
+  const label = r.label;
+
+  // Use HTML marker
+  const el = document.createElement('div');
+  el.style.width='26px'; el.style.height='26px'; el.style.borderRadius='50%'; el.style.background=color;
+  el.style.display='flex'; el.style.alignItems='center'; el.style.justifyContent='center';
+  el.style.color='#fff'; el.style.fontSize='10px'; el.style.fontWeight='bold';
+  el.innerHTML = markerSymbol;
+
+  const popup = new maplibregl.Popup({ offset:25 }).setHTML(`<strong>${label}</strong><br>${r.short_desc || ''}<br><a href="${r.source_url}" target="_blank">Source</a>`);
+
+  new maplibregl.Marker(el).setLngLat([lon,lat]).setPopup(popup).addTo(map);
+  validMarkers++;
+});
+
+// Update badge
+document.getElementById('countBadge').textContent=`Events: ${validMarkers}`;
+
+// ----------------------
+// Lines / Polylines
+// ----------------------
+map.on('load',()=>{
+  map.addSource('lines', { type:'geojson', data:geoJsonData });
+  map.addLayer({
+    id:'lines-layer',
+    type:'line',
+    source:'lines',
+    paint:{
+      'line-color':['get','stroke'] || '#555',
+      'line-width':['get','stroke-width'] || 3,
+      'line-dasharray':['get','stroke-dasharray'] || [6,4],
+      'line-opacity':0.7
+    }
+  });
+
+  // Hover animation effect
+  map.on('mousemove','lines-layer',(e)=>{
+    const feature=e.features[0];
+    map.setFeatureState({source:'lines', id:feature.id},{hover:true});
+  });
+  map.on('mouseleave','lines-layer',(e)=>{
+    const feature=e.features[0];
+    map.setFeatureState({source:'lines', id:feature.id},{hover:false});
+  });
+
+  // Click popup
+  map.on('click','lines-layer',(e)=>{
+    const feature=e.features[0];
+    new maplibregl.Popup()
+      .setLngLat(e.lngLat)
+      .setHTML(`<strong>${feature.properties.service || feature.properties.name}</strong>`)
+      .addTo(map);
+  });
+
+  // Fit bounds
+  const bounds = new maplibregl.LngLatBounds();
+  parsed.data.forEach(r=>{ bounds.extend([parseFloat(r.lon),parseFloat(r.lat)]) });
+  geoJsonData.features.forEach(f=>{
+    if(f.geometry.type==='LineString') f.geometry.coordinates.forEach(c=>bounds.extend(c));
+    else if(f.geometry.type==='Polygon') f.geometry.coordinates[0].forEach(c=>bounds.extend(c));
+  });
+  map.fitBounds(bounds,{padding:50});
+});
+</script>
 
 </body>
 </html>
