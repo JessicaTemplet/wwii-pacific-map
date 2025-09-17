@@ -1,240 +1,111 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Righteous Might: Victory over Japan in World War II</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<style>
-  html,body,#map { height: 100%; margin:0; padding:0; }
-  #map { position: absolute; top:70px; bottom:0; left:0; right:0; }
-  .topbar {
-    position: absolute; top: 0; left:0; right:0; height:70px; background: #0b2545;
-    color:#fff; display:flex; align-items:center; padding:10px 14px; z-index:1000;
-    font-family: Georgia, serif;
-  }
-  .title { font-size:18px; font-weight:700; margin-right:16px; }
-  .timeline { margin-left:auto; display:flex; gap:8px; align-items:center; }
-  .year { background:rgba(255,255,255,0.06); padding:8px 10px; border-radius:4px; cursor:pointer; }
-  .legend { position:absolute; left:12px; bottom:12px; background:#fff; padding:8px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.3); font-size:13px; z-index:1000; }
-  .credits { position:absolute; left:12px; bottom:88px; background:#fff; padding:8px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.3); font-size:13px; z-index:1000; text-align:center; line-height:1.1;}
-  .legend .row { display:flex; gap:8px; align-items:center; padding:4px 0;}
-  .marker-swatch { width:18px; height:18px; border-radius:4px; display:inline-block; }
-  .curve { stroke-dasharray:6 6; }
-  /* popups: small thumbnail */
-  .popup-thumb { width:120px; height:70px; object-fit:cover; display:block; margin-bottom:6px; border-radius:3px; }
-</style>
+  <meta charset="UTF-8" />
+  <title>Historical Events Map</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100%; }
+    .ol-popup {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      max-width: 300px;
+    }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: sans-serif;
+    }
+  </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="title">Righteous Might: Victory over Japan in World War II</div>
-    <div class="timeline" id="timeline">
-      <!-- years will be filled by JS -->
-    </div>
-  </div>
   <div id="map"></div>
-
-  <div class="legend" id="legend">
-    <div style="font-weight:700; margin-bottom:6px;">Legend</div>
-    <div class="row"><span class="marker-swatch" style="background:#d9534f"></span> Japanese offensive</div>
-    <div class="row"><span class="marker-swatch" style="background:#337ab7"></span> U.S. offensive</div>
-    <div class="row"><span class="marker-swatch" style="background:linear-gradient(90deg,#d9534f,#337ab7)"></span> Joint</div>
-    <div class="row"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><path d='M9 0L11 6L18 6L12 9L14 15L9 11L4 15L6 9L0 6L7 6Z' fill='%23f0ad4e'/></svg>" style="height:18px"/> Bomb/air attacks</div>
+  <div id="controls">
+    <label for="year">Filter by Year:</label>
+    <input type="range" id="year" min="1800" max="2025" step="1" value="2025" />
+    <span id="year-label">2025</span>
   </div>
-  <div class="credits">Created by Thug Adams<br/><a href="https://thugadams.substack.com" target="_blank">thugadams.substack.com</a></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-// ========== Utility: normalize longitude to -180..180 ==========
-function normalizeLng(lng){
-  // normalize any longitude into [-180, 180)
-  return ((((lng + 180) % 360) + 360) % 360) - 180;
-}
+  <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+  <script>
+    // Base map layer
+    const baseLayer = new ol.layer.Tile({
+      source: new ol.source.OSM()
+    });
 
-// ========== Map init ==========
-const map = L.map('map', {
-  center: [0, 160], // center pacific-ish
-  zoom: 3,
-  worldCopyJump: true, // helps with marker jumping and antimeridian
-  minZoom: 2
-});
+    // Vector layer for events
+    const eventSource = new ol.source.Vector({
+      url: 'events.geojson',
+      format: new ol.format.GeoJSON()
+    });
 
-// OpenStreetMap tiles (simple, permissive)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors',
-  noWrap: false
-}).addTo(map);
+    const eventLayer = new ol.layer.Vector({
+      source: eventSource,
+      style: new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 6,
+          fill: new ol.style.Fill({ color: 'red' }),
+          stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+        })
+      })
+    });
 
-// ========== custom icons (SVG data-URLs) ==========
-function svgIcon(svgString, size=[30,30]){
-  return L.icon({
-    iconUrl: 'data:image/svg+xml;utf8,' + encodeURIComponent(svgString),
-    iconSize: size,
-    iconAnchor: [size[0]/2, size[1]/2],
-    popupAnchor: [0,-size[1]/2]
-  });
-}
-const redDot = svgIcon('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><circle cx="14" cy="14" r="10" fill="#d9534f" stroke="#550" stroke-width="1"/></svg>');
-const blueDot = svgIcon('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><circle cx="14" cy="14" r="10" fill="#337ab7" stroke="#123" stroke-width="1"/></svg>');
-const jointDot = svgIcon('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#d9534f"/><stop offset="1" stop-color="#337ab7"/></linearGradient></defs><circle cx="14" cy="14" r="10" fill="url(#g)" stroke="#222" stroke-width="1"/></svg>');
-const bombIcon = svgIcon('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect x="6" y="4" width="16" height="6" rx="2" fill="#f0ad4e"/><path d="M12 10 L16 24 L12 22 L8 24 Z" fill="#c77"/></svg>', [28,28]);
-const atomicIcon = svgIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"><circle cx="18" cy="18" r="10" fill="#f44336"/><text x="18" y="22" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">A</text></svg>', [36,36]);
-const flagIcon = svgIcon('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect x="2" y="6" width="20" height="12" rx="2" fill="#b22234"/><rect x="2" y="6" width="10" height="6" fill="#3c3b6e"/><circle cx="6" cy="9" r="1.2" fill="#fff"/></svg>', [32,32]);
+    // Map setup
+    const map = new ol.Map({
+      target: 'map',
+      layers: [baseLayer, eventLayer],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 20]),
+        zoom: 2
+      })
+    });
 
-// ========== load GeoJSON ==========
-/*
-  events.geojson expected structure:
-  {
-    "type":"FeatureCollection",
-    "features":[
-      {
-        "type":"Feature",
-        "properties":{
-          "id":1,
-          "title":"Pearl Harbor",
-          "date":"1941-12-07",
-          "type":"japanese_offensive", // or "us_offensive", "joint", "bomb", "atomic", "surrender"
-          "short":"Surprise attack on Pearl Harbor, US losses &gt; 2400",
-          "thumbnail":"images/pearlharbor_thumb.jpg",
-          "source":"https://... (trusted)"
-        },
-        "geometry":{"type":"Point","coordinates":[139.7454,35.6586]}
-      },
-      ...
-    ]
-  }
-*/
-async function loadEvents(){
-  const r = await fetch('events.geojson');
-  const geo = await r.json();
-  addGeoCollection(geo);
-}
-loadEvents();
+    // Popup
+    const container = document.createElement('div');
+    container.className = 'ol-popup';
+    const overlay = new ol.Overlay({
+      element: container,
+      autoPan: true,
+      autoPanAnimation: { duration: 250 }
+    });
+    map.addOverlay(overlay);
 
-function addGeoCollection(geo){
-  // Create a marker layer group so we can manage z-order if needed
-  const markerGroup = L.layerGroup().addTo(map);
+    map.on('singleclick', function (evt) {
+      const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
+      if (feature) {
+        const props = feature.getProperties();
+        let html = `<h3>${props.title}</h3><p>${props.description}</p>`;
+        if (props.image) {
+          html += `<img src="images/${props.image}" style="max-width:100%"/>`;
+        }
+        container.innerHTML = html;
+        overlay.setPosition(evt.coordinate);
+      } else {
+        overlay.setPosition(undefined);
+      }
+    });
 
-  // For each feature, normalize longitude and create marker & popup
-  geo.features.sort((a,b)=> (a.properties.id || 0) - (b.properties.id || 0)); // ensure numbering order if you used id
+    // Year filter
+    const yearInput = document.getElementById('year');
+    const yearLabel = document.getElementById('year-label');
 
-  geo.features.forEach((f,i)=>{
-    let [lng,lat] = f.geometry.coordinates; // GeoJSON is [lng,lat]
-    lng = normalizeLng(lng);
+    yearInput.addEventListener('input', () => {
+      const year = parseInt(yearInput.value);
+      yearLabel.textContent = year;
 
-    const props = f.properties || {};
-    const id = props.id || (i+1);
-    const title = props.title || 'Event';
-    const date = props.date || '';
-    const type = props.type || 'japanese_offensive';
-    const short = props.short || '';
-    const thumb = props.thumbnail || '';
-    const source = props.source || '';
-
-    // choose icon
-    let icon = redDot;
-    if (type === 'us_offensive') icon = blueDot;
-    if (type === 'joint') icon = jointDot;
-    if (type === 'bomb') icon = bombIcon;
-    if (type === 'atomic') icon = atomicIcon;
-    if (type === 'surrender' || props.flag) icon = flagIcon;
-
-    // marker with numbered label
-    const marker = L.marker([lat,lng], {icon: icon}).addTo(markerGroup);
-
-    // popup HTML
-    const popupHtml = `
-      <div style="width:260px;">
-        <div style="font-weight:700;font-size:15px;margin-bottom:4px;">${id}. ${title} <span style="float:right;font-size:12px;color:#666;">${date}</span></div>
-        ${thumb ? `<img src="${thumb}" class="popup-thumb" alt="${title}">` : ''}
-        <div style="font-size:13px;margin-bottom:6px;">${short}</div>
-        ${source ? `<div style="font-size:12px;"><a href="${source}" target="_blank">Read more</a></div>` : ''}
-      </div>
-    `;
-    marker.bindPopup(popupHtml, {maxWidth:320});
-
-    // optionally attach a tooltip with number
-    marker.bindTooltip(String(id), {permanent:false, direction:'top', offset:[0,-12]});
-  });
-
-  // After markers are added you may want to adjust viewport:
-  try {
-    const bounds = L.geoJSON(geo).getBounds();
-    if (bounds.isValid()) map.fitBounds(bounds.pad(0.25));
-  } catch(e){}
-}
-
-// ========== Movement lines (curved) ==========
-function curveLine(coords, color='#222', dash=true){
-  // coords: array of [lng,lat] in order. We'll create a polyline on map
-  // convert coords to latlng and normalize longitudes
-  const latlngs = coords.map(pt => {
-    const lng = normalizeLng(pt[0]);
-    return [pt[1], lng];
-  });
-  const poly = L.polyline(latlngs, {
-    color: color,
-    weight: 2,
-    dashArray: dash ? '6 6' : null,
-    opacity: 0.9
-  }).addTo(map);
-  return poly;
-}
-
-// Example: you will call curveLine([...]) with appropriate service color
-// curveLine([ [139.7,35.6], [150, -7], [-160, 18] ], '#337ab7', true);
-
-// ========== Simple timeline UI ==========
-const years = [1945,1944,1943,1942,1941];
-const tl = document.getElementById('timeline');
-years.forEach(y=>{
-  const div = document.createElement('div');
-  div.className = 'year';
-  div.innerText = y;
-  div.title = 'Hover to view year forces';
-  div.onmouseenter = () => showYearPopup(y);
-  div.onmouseleave = () => hideYearPopup();
-  tl.appendChild(div);
-});
-
-let popupBox;
-function showYearPopup(y){
-  // in a real build, you'd compute numbers from a data source or static JSON.
-  // Example static content (replace with real data as you compile it)
-  const contents = {
-    1945: "US forces (Pacific theater): ~3,500,000 personnel; Aircraft: ~40,000; Warships: ~7,000 (incl small craft). Japanese: ~2,000,000; Aircraft: ~8,000; Warships: ~1,900",
-    1944: "US: ~2,800,000 personnel; Aircraft: ~30,000; Warships: ~6,000. Japanese: ...",
-    1943: "US: ...",
-    1942: "US: ...",
-    1941: "US: ...",
-  };
-  const text = contents[y] || 'Data not loaded';
-  if (!popupBox){
-    popupBox = L.control({position:'topright'});
-    popupBox.onAdd = function(){
-      const el = L.DomUtil.create('div','year-popup');
-      el.style.background = 'rgba(255,255,255,0.95)';
-      el.style.padding = '8px';
-      el.style.margin = '70px 12px 0 0';
-      el.style.borderRadius = '6px';
-      el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-      el.style.maxWidth = '320px';
-      el.style.fontSize = '13px';
-      el.innerHTML = '<div style="font-weight:700;margin-bottom:6px;">Year ' + y + '</div><div id="year-content">' + text + '</div>';
-      return el;
-    };
-    popupBox.addTo(map);
-  } else {
-    const el = document.querySelector('.year-popup #year-content');
-    if (el) el.innerHTML = text;
-    document.querySelector('.year-popup').style.display = 'block';
-  }
-}
-function hideYearPopup(){
-  if (document.querySelector('.year-popup')) document.querySelector('.year-popup').style.display = 'none';
-}
-
-</script>
+      eventSource.forEachFeature(feature => {
+        const props = feature.getProperties();
+        const show = props.year <= year;
+        feature.setStyle(show ? undefined : new ol.style.Style(null));
+      });
+    });
+  </script>
 </body>
 </html>
