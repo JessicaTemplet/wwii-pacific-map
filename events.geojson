@@ -1,0 +1,18 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "title": "Day of Infamy: Pearl Harbor",
+        "date": "1941-12-07",
+        "type": "japanese_offensive",
+        "short": "Surprise strike on U.S. Pacific Fleet; >2,400 killed.",
+        "thumbnail": "images/pearlharbor_thumb.jpg",
+        "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attac"
+      },
+      "geometry": { "type": "Point", "coordinates": [ -157.949, 21.364 ] }
+    }
+  ]
+}
