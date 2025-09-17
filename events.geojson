@@ -102,6 +102,48 @@
     {
       "type": "Feature",
       "properties": {
+        "title": "Bataan Death March",
+        "description": "Tens of thousands of Filipino and American POWs forced on deadly march by Japanese.",
+        "year": 1942,
+        "image": "",
+        "source": "https://www.history.com/topics/world-war-ii/bataan-death-march"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [120.485, 14.6]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "title": "Battle of Coral Sea",
+        "description": "First carrier-vs-carrier battle; strategic Allied success despite losses.",
+        "year": 1942,
+        "image": "",
+        "source": "https://www.history.com/topics/world-war-ii/battle-of-coral-sea"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [152.0, -15.0]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "title": "Doolittle Raid",
+        "description": "U.S. bombers launch surprise raid on Tokyo, boosting American morale.",
+        "year": 1942,
+        "image": "",
+        "source": "https://www.nationalww2museum.org/war/articles/doolittle-raid"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.6503, 35.6762]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "title": "Battle of Midway",
         "description": "Decisive U.S. naval victory at Midway changes course of Pacific War.",
         "year": 1942,
@@ -140,37 +182,33 @@
         "type": "Point",
         "coordinates": [96.1951, 16.8661]
       }
-    }
-    // … all other events continue in the same format …
-  ]
-}
-,
+    },
     {
       "type": "Feature",
       "properties": {
-        "title": "Battle of Coral Sea",
-        "description": "First carrier-vs-carrier battle; strategic Allied success despite losses.",
-        "year": 1942,
+        "title": "Gilbert & Marshall Islands campaign",
+        "description": "Amphibious campaign secures central Pacific atolls.",
+        "year": 1943,
         "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/battle-of-coral-sea"
+        "source": "https://www.nationalww2museum.org/war/articles/gilbert-and-marshall-islands-campaign"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [152.0, -15.0]
+        "coordinates": [170.0, 7.0]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "title": "Kokoda Track campaign",
-        "description": "Australian forces halt Japanese advance toward Port Moresby.",
-        "year": 1942,
+        "title": "Aleutians retaken",
+        "description": "U.S. forces recapture Attu and Kiska from Japanese.",
+        "year": 1943,
         "image": "",
-        "source": "https://www.awm.gov.au/articles/encyclopedia/kokoda"
+        "source": "https://www.britannica.com/event/Battle-of-Attu"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [147.7333, -9.5]
+        "coordinates": [-173.9, 52.9333]
       }
     },
     {
@@ -204,189 +242,6 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Leyte Gulf battle",
-        "description": "Largest naval battle in history; Japan’s fleet decisively defeated.",
-        "year": 1944,
-        "image": "",
-        "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [125.0, 10.9]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Iwo Jima landing",
-        "description": "U.S. Marines capture Iwo Jima after fierce resistance.",
-        "year": 1945,
-        "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [141.3, 24.8]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Okinawa invasion",
-        "description": "Final major battle of the Pacific; heavy casualties on both sides.",
-        "year": 1945,
-        "image": "",
-        "source": "https://www.britannica.com/event/Battle-of-Okinawa"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [127.6811, 26.2125]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Tokyo firebombing",
-        "description": "Massive U.S. firebombing raid devastates Tokyo.",
-        "year": 1945,
-        "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/firebombing-tokyo"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [139.6917, 35.6895]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Hiroshima bombing",
-        "description": "First atomic bomb dropped on Hiroshima by U.S.",
-        "year": 1945,
-        "image": "",
-        "source": "https://www.atomicheritage.org/history/hiroshima"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [132.4553, 34.3853]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Nagasaki bombing",
-        "description": "Second atomic bomb dropped on Nagasaki by U.S.",
-        "year": 1945,
-        "image": "",
-        "source": "https://www.atomicheritage.org/history/nagasaki"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [129.8736, 32.7503]
-      }
-    }
-,
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Singapore falls",
-        "description": "British surrender Singapore to Japan, one of the worst defeats in British history.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.britannica.com/event/Singapore-capture-and-surrender-1942"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [103.8198, 1.3521]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Bataan Death March",
-        "description": "Tens of thousands of Filipino and American POWs forced on deadly march by Japanese.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/bataan-death-march"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [120.485, 14.6]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Doolittle Raid",
-        "description": "U.S. bombers launch surprise raid on Tokyo, boosting American morale.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/doolittle-raid"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [139.6503, 35.6762]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Midway",
-        "description": "Decisive U.S. victory at Midway cripples Japanese carrier strength.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.history.navy.mil/research/library/online-reading-room/title-list-alphabetically/b/battle-of-midway.html"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-177.35, 28.2]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Guadalcanal campaign",
-        "description": "U.S. secures first major offensive victory in the Pacific.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/guadalcanal-campaign"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [160.1562, -9.646]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Gilbert & Marshall Islands campaign",
-        "description": "Amphibious campaign secures central Pacific atolls.",
-        "year": 1943,
-        "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/gilbert-and-marshall-islands-campaign"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [170.0, 7.0]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Aleutians retaken",
-        "description": "U.S. forces recapture Attu and Kiska from Japanese.",
-        "year": 1943,
-        "image": "",
-        "source": "https://www.britannica.com/event/Battle-of-Attu"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-173.9, 52.9333]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "title": "Philippine Sea battle",
         "description": "U.S. Navy decimates Japanese carrier aviation in 'Great Marianas Turkey Shoot.'",
         "year": 1944,
@@ -415,6 +270,20 @@
     {
       "type": "Feature",
       "properties": {
+        "title": "Leyte Gulf battle",
+        "description": "Largest naval battle in history; Japan’s fleet decisively defeated.",
+        "year": 1944,
+        "image": "",
+        "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [125.0, 10.9]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "title": "Philippines liberation",
         "description": "U.S. campaign liberates Philippines from Japanese occupation.",
         "year": 1944,
@@ -425,20 +294,19 @@
         "type": "Point",
         "coordinates": [122.0, 12.0]
       }
-    }
-,
+    },
     {
       "type": "Feature",
       "properties": {
-        "title": "Iwo Jima",
-        "description": "U.S. Marines capture Iwo Jima after fierce battle, securing airfields close to Japan.",
+        "title": "Iwo Jima landing",
+        "description": "U.S. Marines capture Iwo Jima after fierce resistance.",
         "year": 1945,
         "image": "",
         "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [141.3223, 24.7804]
+        "coordinates": [141.3, 24.8]
       }
     },
     {
@@ -472,25 +340,25 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Okinawa",
-        "description": "The largest amphibious assault in the Pacific war, leading to heavy casualties.",
+        "title": "Okinawa invasion",
+        "description": "Final major battle of the Pacific; heavy casualties on both sides.",
         "year": 1945,
         "image": "",
         "source": "https://www.britannica.com/event/Battle-of-Okinawa"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [127.8056, 26.3344]
+        "coordinates": [127.6811, 26.2125]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "title": "Hiroshima",
-        "description": "First atomic bomb dropped on Hiroshima by the U.S.",
+        "title": "Hiroshima bombing",
+        "description": "First atomic bomb dropped on Hiroshima by U.S.",
         "year": 1945,
         "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/bombing-of-hiroshima-and-nagasaki"
+        "source": "https://www.atomicheritage.org/history/hiroshima"
       },
       "geometry": {
         "type": "Point",
@@ -500,15 +368,15 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Nagasaki",
-        "description": "Second atomic bomb dropped on Nagasaki, hastening Japan’s surrender.",
+        "title": "Nagasaki bombing",
+        "description": "Second atomic bomb dropped on Nagasaki by U.S.",
         "year": 1945,
         "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/bombing-of-hiroshima-and-nagasaki"
+        "source": "https://www.atomicheritage.org/history/nagasaki"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [129.8777, 32.7503]
+        "coordinates": [129.8736, 32.7503]
       }
     },
     {
@@ -539,4 +407,5 @@
         "coordinates": [139.75, 35.33]
       }
     }
-  
+  ]
+}
