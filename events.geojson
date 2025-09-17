@@ -8,7 +8,8 @@
         "description": "Japan stages incidents and seizes Manchuria, escalating conflict.",
         "year": 1931,
         "image": "",
-        "source": "https://www.britannica.com/event/Mukden-Incident"
+        "source": "https://www.britannica.com/event/Mukden-Incident",
+        "marker-color": "#FF0000"
       },
       "geometry": {
         "type": "Point",
@@ -22,7 +23,8 @@
         "description": "Clash at Marco Polo Bridge triggers large-scale war between China and Japan.",
         "year": 1937,
         "image": "",
-        "source": "https://www.britannica.com/event/Marco-Polo-Bridge-Incident"
+        "source": "https://www.britannica.com/event/Marco-Polo-Bridge-Incident",
+        "marker-color": "#FF0000"
       },
       "geometry": {
         "type": "Point",
@@ -36,7 +38,8 @@
         "description": "Japanese carrier aircraft attack Pearl Harbor, Hawaii.",
         "year": 1941,
         "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attack"
+        "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attack",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -50,7 +53,8 @@
         "description": "Japanese forces begin attacks across the Philippines.",
         "year": 1941,
         "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/philippines-campaign-1941-42"
+        "source": "https://www.nationalww2museum.org/war/articles/philippines-campaign-1941-42",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -64,7 +68,8 @@
         "description": "Japanese landing operations begin in British Malaya and threaten Singapore.",
         "year": 1941,
         "image": "",
-        "source": "https://www.britannica.com/event/Battle-of-Malaya"
+        "source": "https://www.britannica.com/event/Battle-of-Malaya",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -78,7 +83,8 @@
         "description": "British colony surrenders to Japanese forces after intense fighting.",
         "year": 1941,
         "image": "",
-        "source": "https://www.cbc.ca/news2/interactives/wwii-hong-kong/"
+        "source": "https://www.cbc.ca/news2/interactives/wwii-hong-kong/",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -92,7 +98,8 @@
         "description": "British stronghold of Singapore falls to Japanese forces.",
         "year": 1942,
         "image": "",
-        "source": "https://www.iwm.org.uk/history/the-fall-of-singapore"
+        "source": "https://www.iwm.org.uk/history/the-fall-of-singapore",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -102,53 +109,12 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Bataan Death March",
-        "description": "Tens of thousands of Filipino and American POWs forced on deadly march by Japanese.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/bataan-death-march"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [120.485, 14.6]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Battle of Coral Sea",
-        "description": "First carrier-vs-carrier battle; strategic Allied success despite losses.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/battle-of-coral-sea"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [152.0, -15.0]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Doolittle Raid",
-        "description": "U.S. bombers launch surprise raid on Tokyo, boosting American morale.",
-        "year": 1942,
-        "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/doolittle-raid"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [139.6503, 35.6762]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "title": "Battle of Midway",
         "description": "Decisive U.S. naval victory at Midway changes course of Pacific War.",
         "year": 1942,
         "image": "",
-        "source": "https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1942/midway.html"
+        "source": "https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1942/midway.html",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -162,7 +128,8 @@
         "description": "U.S. Marines land on Guadalcanal, first Allied offensive in Pacific.",
         "year": 1942,
         "image": "",
-        "source": "https://www.nps.gov/places/000/guadalcanal-campaign.htm"
+        "source": "https://www.nps.gov/places/000/guadalcanal-campaign.htm",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -176,7 +143,8 @@
         "description": "Allies and Japan clash in Burma; crucial supply route at stake.",
         "year": 1942,
         "image": "",
-        "source": "https://www.britannica.com/event/Burma-Campaigns"
+        "source": "https://www.britannica.com/event/Burma-Campaigns",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
@@ -186,29 +154,31 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Gilbert & Marshall Islands campaign",
-        "description": "Amphibious campaign secures central Pacific atolls.",
-        "year": 1943,
+        "title": "Battle of Coral Sea",
+        "description": "First carrier-vs-carrier battle; strategic Allied success despite losses.",
+        "year": 1942,
         "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/gilbert-and-marshall-islands-campaign"
+        "source": "https://www.history.com/topics/world-war-ii/battle-of-coral-sea",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [170.0, 7.0]
+        "coordinates": [152.0, -15.0]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "title": "Aleutians retaken",
-        "description": "U.S. forces recapture Attu and Kiska from Japanese.",
-        "year": 1943,
+        "title": "Kokoda Track campaign",
+        "description": "Australian forces halt Japanese advance toward Port Moresby.",
+        "year": 1942,
         "image": "",
-        "source": "https://www.britannica.com/event/Battle-of-Attu"
+        "source": "https://www.awm.gov.au/articles/encyclopedia/kokoda",
+        "marker-color": "#FFA500"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-173.9, 52.9333]
+        "coordinates": [147.7333, -9.5]
       }
     },
     {
@@ -218,7 +188,8 @@
         "description": "Brutal U.S. amphibious assault on Tarawa Atoll.",
         "year": 1943,
         "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/battle-tarawa"
+        "source": "https://www.nationalww2museum.org/war/articles/battle-tarawa",
+        "marker-color": "#00FF00"
       },
       "geometry": {
         "type": "Point",
@@ -232,7 +203,8 @@
         "description": "U.S. Marines storm Saipan, heavy fighting ensues.",
         "year": 1944,
         "image": "",
-        "source": "https://www.nps.gov/places/saipan-invasion.htm"
+        "source": "https://www.nps.gov/places/saipan-invasion.htm",
+        "marker-color": "#00FF00"
       },
       "geometry": {
         "type": "Point",
@@ -242,39 +214,12 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Philippine Sea battle",
-        "description": "U.S. Navy decimates Japanese carrier aviation in 'Great Marianas Turkey Shoot.'",
-        "year": 1944,
-        "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/philippine-sea-battle"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [145.0, 15.0]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "MacArthur returns to Philippines",
-        "description": "General MacArthur fulfills promise to return, landing at Leyte.",
-        "year": 1944,
-        "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/macarthur-returns-leute"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [123.8854, 10.309]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "title": "Leyte Gulf battle",
         "description": "Largest naval battle in history; Japan’s fleet decisively defeated.",
         "year": 1944,
         "image": "",
-        "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf"
+        "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf",
+        "marker-color": "#00FF00"
       },
       "geometry": {
         "type": "Point",
@@ -284,25 +229,12 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Philippines liberation",
-        "description": "U.S. campaign liberates Philippines from Japanese occupation.",
-        "year": 1944,
-        "image": "",
-        "source": "https://www.nationalww2museum.org/war/articles/philippine-campaign-1944-45"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [122.0, 12.0]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "title": "Iwo Jima landing",
         "description": "U.S. Marines capture Iwo Jima after fierce resistance.",
         "year": 1945,
         "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima"
+        "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima",
+        "marker-color": "#00FF00"
       },
       "geometry": {
         "type": "Point",
@@ -312,39 +244,12 @@
     {
       "type": "Feature",
       "properties": {
-        "title": "Flag raising at Mt. Suribachi",
-        "description": "Iconic U.S. flag raised atop Mt. Suribachi on Iwo Jima.",
-        "year": 1945,
-        "image": "",
-        "source": "https://www.history.com/topics/world-war-ii/iwo-jima-flag-raising"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [141.3224, 24.7761]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "title": "Tokyo firebombing",
-        "description": "Massive incendiary raid devastates Tokyo, killing tens of thousands.",
-        "year": 1945,
-        "image": "",
-        "source": "https://www.history.com/this-day-in-history/tokyo-firebombing"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [139.6917, 35.6895]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "title": "Okinawa invasion",
         "description": "Final major battle of the Pacific; heavy casualties on both sides.",
         "year": 1945,
         "image": "",
-        "source": "https://www.britannica.com/event/Battle-of-Okinawa"
+        "source": "https://www.britannica.com/event/Battle-of-Okinawa",
+        "marker-color": "#00FF00"
       },
       "geometry": {
         "type": "Point",
@@ -354,11 +259,27 @@
     {
       "type": "Feature",
       "properties": {
+        "title": "Tokyo firebombing",
+        "description": "Massive U.S. firebombing raid devastates Tokyo.",
+        "year": 1945,
+        "image": "",
+        "source": "https://www.nationalww2museum.org/war/articles/firebombing-tokyo",
+        "marker-color": "#00FF00"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.6917, 35.6895]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "title": "Hiroshima bombing",
         "description": "First atomic bomb dropped on Hiroshima by U.S.",
         "year": 1945,
         "image": "",
-        "source": "https://www.atomicheritage.org/history/hiroshima"
+        "source": "https://www.atomicheritage.org/history/hiroshima",
+        "marker-color": "#00FF00"
       },
       "geometry": {
         "type": "Point",
@@ -372,7 +293,8 @@
         "description": "Second atomic bomb dropped on Nagasaki by U.S.",
         "year": 1945,
         "image": "",
-        "source": "https://www.atomicheritage.org/history/nagasaki"
+        "source": "https://www.atomicheritage.org/history/nagasaki",
+        "marker-color": "#00FF00"
       },
       "geometry": {
         "type": "Point",
@@ -386,7 +308,8 @@
         "description": "Japan announces surrender on August 15, 1945, effectively ending World War II.",
         "year": 1945,
         "image": "",
-        "source": "https://www.britannica.com/event/World-War-II/Japan-and-the-surrender"
+        "source": "https://www.britannica.com/event/World-War-II/Japan-and-the-surrender",
+        "marker-color": "#0000FF"
       },
       "geometry": {
         "type": "Point",
@@ -400,7 +323,8 @@
         "description": "Formal surrender signing aboard USS Missouri in Tokyo Bay.",
         "year": 1945,
         "image": "",
-        "source": "https://www.britannica.com/event/Surrender-of-Japan"
+        "source": "https://www.britannica.com/event/Surrender-of-Japan",
+        "marker-color": "#0000FF"
       },
       "geometry": {
         "type": "Point",
