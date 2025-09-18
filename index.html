@@ -1,111 +1,310 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Historical Events Map</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
-  <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
-    #map { width: 100%; height: 100%; }
-    .ol-popup {
-      background: white;
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      max-width: 300px;
-    }
-    #controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(255,255,255,0.9);
-      padding: 10px;
-      border-radius: 8px;
-      font-family: sans-serif;
-    }
-  </style>
+<meta charset="utf-8" />
+<title>Righteous Might: Victory over Japan in World War II</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
+<style>
+  html,body { height:100%; margin:0; font-family: Arial, Helvetica, sans-serif; }
+  #map { width:100%; height:100%; position:relative; }
+  .topbar {
+    position: absolute; top: 0; left: 0; right: 0; height:70px;
+    background: linear-gradient(90deg,#051423,#0b2545);
+    color: #fff; display:flex; align-items:center; padding:10px 16px; z-index:2000;
+  }
+  .title { font-size:18px; font-weight:700; font-family: Georgia, serif; }
+  .timeline { margin-left:auto; display:flex; gap:8px; align-items:center; }
+  .year-pill { background: rgba(255,255,255,0.06); padding:8px 10px; border-radius:6px; cursor:pointer; color:#fff; font-weight:600; }
+  .year-tooltip {
+    position:absolute; top:70px; right:12px; background:rgba(255,255,255,0.98); color:#111;
+    padding:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); font-size:13px; z-index:2100;
+    display:none; max-width:340px;
+  }
+
+  /* Legend and credit */
+  .legend-box, .credits-box {
+    position:absolute; left:12px; bottom:12px; background:#fff; padding:10px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.25); z-index:2000;
+    font-size:13px; color:#222; line-height:1.3;
+  }
+  .credits-box { bottom:88px; text-align:center; }
+  .legend-entry { display:flex; align-items:center; gap:8px; margin:6px 0; }
+  .swatch { width:18px; height:14px; border-radius:3px; display:inline-block; border:1px solid #bbb; }
+
+  /* Force lines demo (legend) */
+  .line-swatch { width:48px; height:8px; border-radius:4px; display:inline-block; border:1px solid #bbb; }
+
+  /* Popup styling */
+  .popup {
+    background: #fff; padding:8px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.25);
+    max-width:300px; font-size:13px;
+  }
+  .popup h3 { margin:0 0 6px 0; font-size:15px; }
+  .popup img { width:100%; height:90px; object-fit:cover; border-radius:4px; margin-bottom:6px; }
+
+  /* small screen tweaks */
+  @media (max-width:600px){
+    .title { font-size:15px; }
+    .year-pill { padding:6px 8px; font-size:13px; }
+  }
+</style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="controls">
-    <label for="year">Filter by Year:</label>
-    <input type="range" id="year" min="1800" max="2025" step="1" value="2025" />
-    <span id="year-label">2025</span>
+  <div id="map" role="application" aria-label="Interactive WWII Pacific Theater map"></div>
+
+  <div class="topbar" style="pointer-events:auto;">
+    <div class="title">Righteous Might: Victory over Japan in World War II</div>
+    <div class="timeline" id="timeline"><!-- years populated by JS --></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
-  <script>
-    // Base map layer
-    const baseLayer = new ol.layer.Tile({
+  <div class="year-tooltip" id="yearTooltip"></div>
+
+  <div class="legend-box" id="legendBox" aria-hidden="false">
+    <div style="font-weight:700;margin-bottom:6px;">Legend</div>
+    <div class="legend-entry"><span class="swatch" style="background:#D0021B"></span> Japanese offensive</div>
+    <div class="legend-entry"><span class="swatch" style="background:#1F6FEB"></span> U.S. offensive</div>
+    <div class="legend-entry"><span class="swatch" style="background:linear-gradient(90deg,#D0021B,#1F6FEB)"></span> Joint action</div>
+    <div class="legend-entry"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><path d='M9 0L11 6L18 6L12 9L14 15L9 11L4 15L6 9L0 6L7 6Z' fill='%23f0ad4e'/></svg>" style="width:18px;height:18px"/> Bombing</div>
+    <div class="legend-entry"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><circle cx='9' cy='9' r='8' fill='%23f44336'/><text x='9' y='12' font-size='10' font-weight='700' text-anchor='middle' fill='%23fff'>A</text></svg>" style="width:18px;height:18px"/> Atomic</div>
+    <div style="margin-top:8px;font-weight:700;">Movement lines</div>
+    <div class="legend-entry"><span class="line-swatch" style="background:#2ca02c"></span> US Army (green)</div>
+    <div class="legend-entry"><span class="line-swatch" style="background:#1F6FEB"></span> US Navy (blue)</div>
+    <div class="legend-entry"><span class="line-swatch" style="background:#222222"></span> US Marines (black)</div>
+    <div class="legend-entry"><span class="line-swatch" style="background:#D0021B"></span> Imperial Japan (red)</div>
+  </div>
+
+  <div class="credits-box">Created by Thug Adams<br/><a href="https://thugadams.substack.com" target="_blank" rel="noopener">thugadams.substack.com</a></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+<script>
+/* ---------------------------
+   Helper: SVG data-url icons
+   --------------------------- */
+function svgDataUrl(svg) {
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+// simple circle icons
+const ICONS = {
+  japanese: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#D0021B' stroke='#600' stroke-width='1'/></svg>`),
+  usa: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#1F6FEB' stroke='#123' stroke-width='1'/></svg>`),
+  joint: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#D0021B'/><stop offset='1' stop-color='#1F6FEB'/></linearGradient></defs><circle cx='18' cy='18' r='12' fill='url(#g)' stroke='#222' stroke-width='1'/></svg>`),
+  bomb: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect x='8' y='6' rx='2' width='20' height='8' fill='#f0ad4e'/><path d='M16 14 L20 30 L16 28 L12 30 Z' fill='#c77'/></svg>`),
+  atomic: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='14' fill='#f44336'/><text x='20' y='24' font-size='12' font-weight='700' text-anchor='middle' fill='#fff'>A</text></svg>`),
+  flag: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect x='3' y='8' width='20' height='10' rx='2' fill='#b22234'/><rect x='3' y='8' width='10' height='5' fill='#3c3b6e'/><circle cx='6' cy='10' r='1.2' fill='#fff'/></svg>`),
+  defaultThumb: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='90'><rect width='100%' height='100%' fill='#ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#777' font-size='14'>No image</text></svg>`)
+};
+
+/* ---------------------------
+   Map Initialization
+   --------------------------- */
+const map = new ol.Map({
+  target: 'map',
+  view: new ol.View({
+    center: ol.proj.fromLonLat([150, 5]),
+    zoom: 3,
+    minZoom: 2
+  }),
+  layers: [
+    new ol.layer.Tile({
       source: new ol.source.OSM()
-    });
+    })
+  ],
+  controls: ol.control.defaults({ attribution: true, rotate: false, zoom: true })
+});
 
-    // Vector layer for events
-    const eventSource = new ol.source.Vector({
-      url: 'events.geojson',
-      format: new ol.format.GeoJSON()
-    });
+/* ---------------------------
+   Load GeoJSON and create vector layer
+   --------------------------- */
+const vectorSource = new ol.source.Vector({
+  format: new ol.format.GeoJSON(),
+  url: 'events.geojson',
+  loader: function(extent, resolution, projection) {
+    // use default loader (so url loads)
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', this.getUrl());
+    xhr.onload = () => {
+      const features = this.getFormat().readFeatures(xhr.responseText, {
+        featureProjection: projection
+      });
+      this.addFeatures(features);
+      // fit only after features loaded once
+      try {
+        const b = this.getExtent();
+        if (b && !ol.extent.isEmpty(b)) map.getView().fit(b, {padding:[60,60,60,60]});
+      } catch(e){}
+    };
+    xhr.send();
+  }
+});
 
-    const eventLayer = new ol.layer.Vector({
-      source: eventSource,
-      style: new ol.style.Style({
-        image: new ol.style.Circle({
-          radius: 6,
-          fill: new ol.style.Fill({ color: 'red' }),
-          stroke: new ol.style.Stroke({ color: 'white', width: 2 })
-        })
+function getIconForFeature(feat) {
+  const t = (feat.get('marker_type') || feat.get('type') || '').toLowerCase();
+  if (t === 'japanese_offensive' || t === 'japan' || t === 'japanese') return ICONS.japanese;
+  if (t === 'us_offensive' || t === 'usa' || t === 'us') return ICONS.usa;
+  if (t === 'joint') return ICONS.joint;
+  if (t === 'bomb') return ICONS.bomb;
+  if (t === 'atomic') return ICONS.atomic;
+  if (t === 'surrender' || t === 'flag') return ICONS.flag;
+  return ICONS.defaultThumb;
+}
+
+const styleCache = {};
+function styleFunction(feature, resolution) {
+  const iconUrl = getIconForFeature(feature);
+  const key = iconUrl;
+  if (!styleCache[key]) {
+    styleCache[key] = new ol.style.Style({
+      image: new ol.style.Icon({
+        src: iconUrl,
+        scale: 0.9,
+        anchor: [0.5, 0.5],
+        anchorXUnits: 'fraction',
+        anchorYUnits: 'fraction'
       })
     });
+  }
+  return styleCache[key];
+}
 
-    // Map setup
-    const map = new ol.Map({
-      target: 'map',
-      layers: [baseLayer, eventLayer],
-      view: new ol.View({
-        center: ol.proj.fromLonLat([0, 20]),
-        zoom: 2
-      })
-    });
+const vectorLayer = new ol.layer.Vector({
+  source: vectorSource,
+  style: styleFunction,
+  declutter: true
+});
+map.addLayer(vectorLayer);
 
-    // Popup
-    const container = document.createElement('div');
-    container.className = 'ol-popup';
-    const overlay = new ol.Overlay({
-      element: container,
-      autoPan: true,
-      autoPanAnimation: { duration: 250 }
-    });
-    map.addOverlay(overlay);
+/* ---------------------------
+   Popup overlay
+   --------------------------- */
+const popupContainer = document.createElement('div');
+popupContainer.className = 'popup';
+const overlay = new ol.Overlay({
+  element: popupContainer,
+  autoPan: { animation: { duration: 250 } },
+  autoPanMargin: 60
+});
+map.addOverlay(overlay);
 
-    map.on('singleclick', function (evt) {
-      const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
-      if (feature) {
-        const props = feature.getProperties();
-        let html = `<h3>${props.title}</h3><p>${props.description}</p>`;
-        if (props.image) {
-          html += `<img src="images/${props.image}" style="max-width:100%"/>`;
+map.on('singleclick', function(evt) {
+  const pixel = evt.pixel;
+  const feature = map.forEachFeatureAtPixel(pixel, f => f);
+  if (!feature) { overlay.setPosition(undefined); return; }
+  const props = feature.getProperties();
+  const title = props.title || props.name || 'Event';
+  const start = props.start_date || props.year || '';
+  const end = props.end_date ? (' — ' + props.end_date) : '';
+  const short = props.short_desc || props.description || '';
+  const source = props.source || '';
+  const thumb = props.thumbnail || '';
+
+  const thumbHtml = thumb ? `<img src="${thumb}" alt="${title}"/>` : `<img src="${ICONS.defaultThumb}" alt="No image"/>`;
+  const html = `<h3>${title}</h3>
+                <div style="font-size:12px;color:#666;margin-bottom:6px;">${start}${end}</div>
+                ${thumbHtml}
+                <div>${short}</div>
+                ${source ? `<div style="margin-top:6px;font-size:12px;"><a href="${source}" target="_blank" rel="noopener">Read more</a></div>` : ''}`;
+  popupContainer.innerHTML = html;
+  overlay.setPosition(evt.coordinate);
+});
+
+/* Close popup on map move */
+map.on('movestart', function() { overlay.setPosition(undefined); });
+
+/* ---------------------------
+   Year timeline UI (1945 → 1941)
+   Hover shows approximate force sizes (best-effort numbers)
+   --------------------------- */
+const years = [1945,1944,1943,1942,1941];
+const timelineDiv = document.getElementById('timeline');
+const yearTooltip = document.getElementById('yearTooltip');
+
+const yearData = {
+  1945: {
+    us: "≈ 3,500,000 personnel (par., naval & air), Aircraft ≈ 40,000, Warships ≈ 7,000 (incl. small craft)",
+    japan: "≈ 2,000,000 personnel, Aircraft ≈ 8,000, Warships ≈ 1,900"
+  },
+  1944: {
+    us: "≈ 2,800,000 personnel, Aircraft ≈ 30,000, Warships ≈ 6,000",
+    japan: "≈ 2,300,000 personnel (stretched), Aircraft ≈ 12,000, Warships ≈ 3,000"
+  },
+  1943: {
+    us: "≈ 1,800,000 personnel (Pacific forces growing), Aircraft ≈ 15,000, Warships ≈ 5,000",
+    japan: "≈ 2,500,000 personnel, Aircraft ≈ 15,000, Warships ≈ 3,500"
+  },
+  1942: {
+    us: "≈ 1,000,000 personnel (initial build-up), Aircraft ≈ 7,000, Warships ≈ 3,500",
+    japan: "≈ 2,000,000 personnel, Aircraft ≈ 8,000, Warships ≈ 3,000"
+  },
+  1941: {
+    us: "≈ 400,000 personnel (Pacific & global distribution), Aircraft ≈ 3,500, Warships ≈ 2,000",
+    japan: "≈ 1,700,000 personnel, Aircraft ≈ 6,000, Warships ≈ 2,500"
+  }
+};
+
+years.forEach(y => {
+  const pill = document.createElement('div');
+  pill.className = 'year-pill';
+  pill.innerText = y;
+  pill.onmouseenter = (e) => {
+    yearTooltip.style.display = 'block';
+    yearTooltip.style.right = '12px';
+    yearTooltip.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Year ${y}</div>
+      <div style="font-size:13px;"><strong>US (approx.):</strong><br/>${yearData[y].us}</div>
+      <div style="margin-top:8px;font-size:13px;"><strong>Japan (approx.):</strong><br/>${yearData[y].japan}</div>`;
+  };
+  pill.onmouseleave = (e) => { yearTooltip.style.display = 'none'; };
+  timelineDiv.appendChild(pill);
+});
+
+/* ---------------------------
+   Movement lines (example curves)
+   We'll add a few illustrative arcs for Army/Navy/Marines/Japan movements
+   (best-effort paths; you can adjust arrays later)
+   --------------------------- */
+function lonlat(lon, lat) { return ol.proj.fromLonLat([lon, lat]); }
+
+function addPolyline(coords, color='#000', dash=false) {
+  const line = new ol.Feature({
+    geometry: new ol.geom.LineString(coords.map(c => ol.proj.fromLonLat(c)))
+  });
+  line.setStyle(new ol.style.Style({
+    stroke: new ol.style.Stroke({ color: color, width: 2, lineDash: dash ? [8,8] : undefined })
+  }));
+  const layer = new ol.layer.Vector({ source: new ol.source.Vector({features:[line]}), zIndex: 500 });
+  map.addLayer(layer);
+}
+
+/* Example movement lines — adjust as you like */
+addPolyline([[120,14.6],[125,10],[140,24]], '#2ca02c', true); // US Army-ish (green)
+addPolyline([[-157.95,21.36],[160.2,-9.6],[145.75,15.2]], '#1F6FEB', true); // US Navy-ish (blue)
+addPolyline([[160.2,-9.6],[141.3,24.8],[127.8,26.3]], '#222222', true); // US Marines-ish (black)
+addPolyline([[123.43,41.803], [116.27,39.74], [105.83,21.03], [101.69,3.14]], '#D0021B', true); // Japan offensive red
+
+/* ---------------------------
+   Small helper: normalize longitudes in GeoJSON if needed.
+   (OpenLayers handles most cases but this helps)
+   --------------------------- */
+function normalizeGeoJSONCoords(obj) {
+  if (!obj) return obj;
+  if (obj.type === 'FeatureCollection' && Array.isArray(obj.features)) {
+    obj.features.forEach(f => {
+      if (f && f.geometry && f.geometry.type === 'Point') {
+        let [lon, lat] = f.geometry.coordinates;
+        // Normalize lon to [-180,180)
+        if (lon > 180 || lon < -180) {
+          lon = ((((lon + 180) % 360) + 360) % 360) - 180;
+          f.geometry.coordinates[0] = lon;
         }
-        container.innerHTML = html;
-        overlay.setPosition(evt.coordinate);
-      } else {
-        overlay.setPosition(undefined);
       }
     });
+  }
+  return obj;
+}
 
-    // Year filter
-    const yearInput = document.getElementById('year');
-    const yearLabel = document.getElementById('year-label');
-
-    yearInput.addEventListener('input', () => {
-      const year = parseInt(yearInput.value);
-      yearLabel.textContent = year;
-
-      eventSource.forEachFeature(feature => {
-        const props = feature.getProperties();
-        const show = props.year <= year;
-        feature.setStyle(show ? undefined : new ol.style.Style(null));
-      });
-    });
-  </script>
+/* ---------------------------
+   FIN
+   --------------------------- */
+</script>
 </body>
 </html>
