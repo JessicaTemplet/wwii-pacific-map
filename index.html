@@ -1,3 +1,4 @@
+ 
 <!doctype html>
 <html lang="en">
 <head>
@@ -181,7 +182,7 @@
       pill.innerText = y;
       pill.onmouseenter = () => {
         tooltip.style.display = 'block';
-        tooltip.innerHTML = `<strong>Year ${y}</strong><br/><strong>US:</strong> ${yearData[y].us}<br/><strong>Japan:</strong> ${yearData[y].japan}`;
+        tooltip.innerHTML = `<strong>Year ${y}</strong><br/><strong>US:</strong> ${yearData[y].us}<br/><strong>Japan:</stron/g> ${yearData[y].japan}`;
       };
       pill.onmouseleave = () => { tooltip.style.display = 'none'; };
       timelineDiv.appendChild(pill);
