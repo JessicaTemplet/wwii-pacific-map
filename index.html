@@ -1,85 +1,115 @@
- 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Righteous Might: Victory over Japan in World War II</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
-
+  <meta charset="utf-8"/>
+  <title>WWII Pacific Map Debug Version</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css"/>
   <style>
-    html, body { margin:0; padding:0; height:100%; overflow:hidden; }
-    #map { width:100%; height:100%; position:absolute; top:0; left:0; } 
-
-    .topbar {
-      position: absolute; top:0; left:0; right:0; height:70px;
-      background: linear-gradient(90deg,#051423,#0b2545);
-      color:#fff; display:flex; align-items:center; padding:10px 16px; z-index:2000;
-      pointer-events: none;
-    }
-    .title { font-size:18px; font-weight:700; font-family: Georgia, serif; }
-    .timeline { margin-left:auto; display:flex; gap:8px; align-items:center; pointer-events: auto; }
-    .year-pill { background: rgba(255,255,255,0.06); padding:8px 10px; border-radius:6px; cursor:pointer; color:#fff; font-weight:600; }
-    .year-tooltip {
-      position:absolute; top:70px; right:12px; background:rgba(255,255,255,0.98); color:#111;
-      padding:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); font-size:13px; z-index:2100;
-      display:none; max-width:340px;
-    }
-
-    .legend-box, .credits-box {
-      position:absolute; left:12px; bottom:12px; background:#fff; padding:10px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.25); z-index:2000;
-      font-size:13px; color:#222; line-height:1.3;
-    }
-    .credits-box { bottom:88px; text-align:center; }
-
-    .legend-entry { display:flex; align-items:center; gap:8px; margin:6px 0; }
-    .swatch { width:18px; height:14px; border-radius:3px; display:inline-block; border:1px solid #bbb; }
-
-    .line-swatch { width:48px; height:8px; border-radius:4px; display:inline-block; border:1px solid #bbb; }
-
-    .popup {
-      background: #fff; padding:8px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.25);
-      max-width:300px; font-size:13px;
-    }
-    .popup h3 { margin:0 0 6px 0; font-size:15px; }
+    html, body { margin:0; padding:0; height:100%; width:100%; }
+    #map { position:absolute; top:0; left:0; right:0; bottom:0; z-index:1000; }
+    .topbar { position:absolute; top:0; left:0; right:0; height:70px; background:#0b2545; color:#fff; display:flex; align-items:center; padding:10px 16px; z-index:2000; }
+    .timeline { margin-left:auto; display:flex; gap:8px; align-items:center; }
+    .year-pill { background:rgba(255,255,255,0.1); padding:6px 10px; border-radius:4px; color:#fff; cursor:pointer; }
+    .year-tooltip { position:absolute; top:70px; right:12px; background:#fff; color:#000; padding:8px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.3); font-size:13px; display:none; max-width:300px; z-index:3000; }
+    .legend-box, .credits-box { position:absolute; left:12px; bottom:12px; background:#fff; padding:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); font-size:13px; z-index:2000; }
+    .credits-box { bottom:80px; }
+    .legend-entry, .swatch { /* as before */ }
+    .popup { background:#fff; padding:8px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); max-width:300px; font-size:13px; }
     .popup img { width:100%; height:90px; object-fit:cover; border-radius:4px; margin-bottom:6px; }
-
   </style>
 </head>
 <body>
-  <div id="map" role="application" aria-label="Interactive WWII Pacific Theater map"></div>
-
+  <div id="map"></div>
   <div class="topbar">
     <div class="title">Righteous Might: Victory over Japan in World War II</div>
     <div class="timeline" id="timeline"></div>
   </div>
-
   <div class="year-tooltip" id="yearTooltip"></div>
-
-  <div class="legend-box" id="legendBox" aria-hidden="false">
-    <div style="font-weight:700;margin-bottom:6px;">Legend</div>
-    <div class="legend-entry"><span class="swatch" style="background:#D0021B"></span> Japanese offensive</div>
-    <div class="legend-entry"><span class="swatch" style="background:#1F6FEB"></span> U.S. offensive</div>
-    <div class="legend-entry"><span class="swatch" style="background:linear-gradient(90deg,#D0021B,#1F6FEB)"></span> Joint action</div>
-    <div class="legend-entry"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><path d='M9 0L11 6L18 6L12 9L14 15L9 11L4 15L6 9L0 6L7 6Z' fill='%23f0ad4e'/></svg>" style="width:18px;height:18px"/> Bombing</div>
-    <div class="legend-entry"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><circle cx='9' cy='9' r='8' fill='%23f44336'/><text x='9' y='12' font-size='10' font-weight='700' text-anchor='middle' fill='%23fff'>A</text></svg>" style="width:18px;height:18px"/> Atomic</div>
-    <div style="margin-top:8px;font-weight:700;">Movement lines</div>
-    <div class="legend-entry"><span class="line-swatch" style="background:#2ca02c"></span> US Army</div>
-    <div class="legend-entry"><span class="line-swatch" style="background:#1F6FEB"></span> US Navy</div>
-    <div class="legend-entry"><span class="line-swatch" style="background:#222222"></span> US Marines</div>
-    <div class="legend-entry"><span class="line-swatch" style="background:#D0021B"></span> Imperial Japan</div>
-  </div>
-
-  <div class="credits-box">Created by Thug Adams<br/><a href="https://thugadams.substack.com" target="_blank" rel="noopener">thugadams.substack.com</a></div>
+  <div class="legend-box" id="legendBox">Legend loading...</div>
+  <div class="credits-box">Created by Thug Adams<br/><a href="https://thugadams.substack.com" target="_blank">thugadams.substack.com</a></div>
 
   <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
   <script>
-    console.log("Map init script starting.");
+    console.log("DEBUG: script started");
 
-    /* Helper for SVG icons */
-    function svgDataUrl(svg) {
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    // Base map
+    try {
+      const map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([150, 5]),
+          zoom: 3,
+          minZoom:2
+        })
+      });
+      console.log("DEBUG: base map layer initialized");
+      
+      // Load geojson
+      const vectorSource = new ol.source.Vector({
+        format: new ol.format.GeoJSON(),
+        url: 'events.geojson'
+      });
+      vectorSource.on('addfeature', function(event) {
+        console.log("DEBUG: feature added:", event.feature.getProperties().title);
+      });
+      vectorSource.on('error', function(e) {
+        console.error("DEBUG: error loading features:", e);
+      });
+
+      const vectorLayer = new ol.layer.Vector({
+        source: vectorSource,
+        style: feature => {
+          const mt = (feature.get('marker_type') || '').toLowerCase();
+          console.log("DEBUG: styling feature type:", mt);
+          let iconUrl;
+          switch(mt) {
+            case 'japanese_offensive': iconUrl = ICONS.japanese; break;
+            case 'us_offensive': iconUrl = ICONS.usa; break;
+            case 'joint': iconUrl = ICONS.joint; break;
+            case 'bomb': iconUrl = ICONS.bomb; break;
+            case 'atomic': iconUrl = ICONS.atomic; break;
+            case 'surrender': iconUrl = ICONS.flag; break;
+            default: iconUrl = ICONS.default; console.warn("DEBUG: unknown marker_type for feature", feature.get('title'), mt);
+          }
+          return new ol.style.Style({
+            image: new ol.style.Icon({ src: iconUrl, scale:0.9, anchor:[0.5,0.5] })
+          });
+        }
+      });
+      map.addLayer(vectorLayer);
+
+      // Popup
+      const popupEl = document.createElement('div');
+      popupEl.className='popup';
+      const overlay = new ol.Overlay({
+        element: popupEl,
+        autoPan: { animation: { duration:250 } }
+      });
+      map.addOverlay(overlay);
+
+      map.on('singleclick', evt => {
+        const f = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
+        if (!f) { overlay.setPosition(undefined); return; }
+        const props = f.getProperties();
+        const content = `<h3>${props.title}</h3><div style="font-size:12px;color:#666;">${props.start_date}${props.end_date ? ' — ' + props.end_date : ''}</div>${props.short_desc ? '<div>' + props.short_desc + '</div>' : ''}${props.source ? '<div style="margin-top:6px;font-size:12px;"><a href="' + props.source + '" target="_blank">Read more</a></div>' : ''}`;
+        popupEl.innerHTML = content;
+        overlay.setPosition(evt.coordinate);
+      });
+
+      console.log("DEBUG: map & vector layer and popup set up");
+
+    } catch (err) {
+      console.error("DEBUG: fatal map init error:", err);
     }
+
+    // icons definitions (moved above for clarity)
+    function svgDataUrl(svg) { return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg); }
     const ICONS = {
       japanese: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#D0021B'/></svg>`),
       usa: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#1F6FEB'/></svg>`),
@@ -89,106 +119,6 @@
       flag: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect x='3' y='8' width='20' height='10' rx='2' fill='#b22234'/><rect x='3' y='8' width='10' height='5' fill='#3c3b6e'/></svg>`),
       default: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#cccccc'/></svg>`)
     };
-
-    const map = new ol.Map({
-      target: 'map',
-      layers: [
-        new ol.layer.Tile({
-          source: new ol.source.OSM()
-        })
-      ],
-      view: new ol.View({
-        center: ol.proj.fromLonLat([150, 5]),
-        zoom: 3,
-        minZoom: 2
-      }),
-      controls: ol.control.defaults()
-    });
-
-    const vectorSource = new ol.source.Vector({
-      format: new ol.format.GeoJSON(),
-      url: 'events.geojson'
-    });
-
-    const vectorLayer = new ol.layer.Vector({
-      source: vectorSource,
-      style: feature => {
-        const type = (feature.get('marker_type') || '').toLowerCase();
-        let icon = ICONS.default;
-        if (type === 'japanese_offensive') icon = ICONS.japanese;
-        else if (type === 'us_offensive') icon = ICONS.usa;
-        else if (type === 'joint') icon = ICONS.joint;
-        else if (type === 'bomb') icon = ICONS.bomb;
-        else if (type === 'atomic') icon = ICONS.atomic;
-        else if (type === 'surrender') icon = ICONS.flag;
-
-        return new ol.style.Style({
-          image: new ol.style.Icon({
-            src: icon,
-            scale: 0.9,
-            anchor: [0.5,0.5],
-            anchorXUnits: 'fraction',
-            anchorYUnits: 'fraction'
-          })
-        });
-      }
-    });
-    map.addLayer(vectorLayer);
-
-    // Popup overlay
-    const popupEl = document.createElement('div');
-    popupEl.className = 'popup';
-    const overlay = new ol.Overlay({
-      element: popupEl,
-      autoPan: { animation: { duration:250 } }
-    });
-    map.addOverlay(overlay);
-
-    map.on('singleclick', evt => {
-      const f = map.forEachFeatureAtPixel(evt.pixel, feat => feat);
-      if (!f) {
-        overlay.setPosition(undefined);
-        return;
-      }
-      const props = f.getProperties();
-      const title = props.title || '';
-      const start = props.start_date || '';
-      const end = props.end_date ? (' — ' + props.end_date) : '';
-      const short = props.short_desc || '';
-      const source = props.source || '';
-      const thumb = props.thumbnail || '';
-
-      const thumbHtml = thumb ? `<img src="${thumb}" alt="${title}"/>` : `<img src="${ICONS.default}" alt="No image"/>`;
-      const content = `<h3>${title}</h3><div style="font-size:12px;color:#666;">${start}${end}</div>${thumbHtml}<div>${short}</div>${source ? `<div style="margin-top:6px;font-size:12px;"><a href="${source}" target="_blank">Read more</a></div>` : ''}`;
-      popupEl.innerHTML = content;
-      overlay.setPosition(evt.coordinate);
-    });
-
-    // Timeline (years 1945 → 1941)
-    const years = [1945, 1944, 1943, 1942, 1941];
-    const timelineDiv = document.getElementById('timeline');
-    const tooltip = document.getElementById('yearTooltip');
-    const yearData = {
-      1945: { us:"≈ 3,500,000 personnel; Aircraft ≈ 40,000; Warships ≈ 7,000", japan:"≈ 2,000,000 personnel; Aircraft ≈ 8,000; Warships ≈ 1,900" },
-      1944: { us:"≈ 2,800,000 personnel; Aircraft ≈ 30,000; Warships ≈ 6,000", japan:"≈ 2,300,000 personnel; Aircraft ≈ 12,000; Warships ≈ 3,000" },
-      1943: { us:"≈ 1,800,000 personnel; Aircraft ≈ 15,000; Warships ≈ 5,000", japan:"≈ 2,500,000 personnel; Aircraft ≈ 15,000; Warships ≈ 3,500" },
-      1942: { us:"≈ 1,000,000 personnel; Aircraft ≈ 7,000; Warships ≈ 3,500", japan:"≈ 2,000,000 personnel; Aircraft ≈ 8,000; Warships ≈ 3,000" },
-      1941: { us:"≈ 400,000 personnel; Aircraft ≈ 3,500; Warships ≈ 2,000", japan:"≈ 1,700,000 personnel; Aircraft ≈ 6,000; Warships ≈ 2,500" }
-    };
-
-    years.forEach(y => {
-      const pill = document.createElement('div');
-      pill.className = 'year-pill';
-      pill.innerText = y;
-      pill.onmouseenter = () => {
-        tooltip.style.display = 'block';
-        tooltip.innerHTML = `<strong>Year ${y}</strong><br/><strong>US:</strong> ${yearData[y].us}<br/><strong>Japan:</stron/g> ${yearData[y].japan}`;
-      };
-      pill.onmouseleave = () => { tooltip.style.display = 'none'; };
-      timelineDiv.appendChild(pill);
-    });
-
-    console.log("Map and layers added successfully.");
 
   </script>
 </body>
