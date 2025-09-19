@@ -1,277 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>WWII Pacific Theater Map</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<style>
-  #map { height: 90vh; width: 100%; }
-  .legend { background: white; padding: 10px; line-height: 1.5em; }
-  .timeline { background: white; padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-around; }
-  .timeline div { cursor: pointer; }
-  .popup-img { width: 80px; height: 60px; display: block; margin-bottom: 5px; }
-</style>
+  <meta charset="utf-8"/>
+  <title>WWII Pacific Map Debug Version</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css"/>
+  <style>
+    html, body { margin:0; padding:0; height:100%; width:100%; }
+    #map { position:absolute; top:0; left:0; right:0; bottom:0; z-index:1000; }
+    .topbar { position:absolute; top:0; left:0; right:0; height:70px; background:#0b2545; color:#fff; display:flex; align-items:center; padding:10px 16px; z-index:2000; }
+    .timeline { margin-left:auto; display:flex; gap:8px; align-items:center; }
+    .year-pill { background:rgba(255,255,255,0.1); padding:6px 10px; border-radius:4px; color:#fff; cursor:pointer; }
+    .year-tooltip { position:absolute; top:70px; right:12px; background:#fff; color:#000; padding:8px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.3); font-size:13px; display:none; max-width:300px; z-index:3000; }
+    .legend-box, .credits-box { position:absolute; left:12px; bottom:12px; background:#fff; padding:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); font-size:13px; z-index:2000; }
+    .credits-box { bottom:80px; }
+    .legend-entry, .swatch { /* as before */ }
+    .popup { background:#fff; padding:8px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); max-width:300px; font-size:13px; }
+    .popup img { width:100%; height:90px; object-fit:cover; border-radius:4px; margin-bottom:6px; }
+  </style>
 </head>
 <body>
+  <div id="map"></div>
+  <div class="topbar">
+    <div class="title">Righteous Might: Victory over Japan in World War II</div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+  <div class="year-tooltip" id="yearTooltip"></div>
+  <div class="legend-box" id="legendBox">Legend loading...</div>
+  <div class="credits-box">Created by Thug Adams<br/><a href="https://thugadams.substack.com" target="_blank">thugadams.substack.com</a></div>
 
-<div class="timeline" id="timeline">
-  <div data-year="1945">1945</div>
-  <div data-year="1944">1944</div>
-  <div data-year="1943">1943</div>
-  <div data-year="1942">1942</div>
-  <div data-year="1941">1941</div>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+  <script>
+    console.log("DEBUG: script started");
 
-<div id="map"></div>
+    // Base map
+    try {
+      const map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([150, 5]),
+          zoom: 3,
+          minZoom:2
+        })
+      });
+      console.log("DEBUG: base map layer initialized");
+      
+      // Load geojson
+      const vectorSource = new ol.source.Vector({
+        format: new ol.format.GeoJSON(),
+        url: 'events.geojson'
+      });
+      vectorSource.on('addfeature', function(event) {
+        console.log("DEBUG: feature added:", event.feature.getProperties().title);
+      });
+      vectorSource.on('error', function(e) {
+        console.error("DEBUG: error loading features:", e);
+      });
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-extra-markers/dist/js/leaflet.extra-markers.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css" />
+      const vectorLayer = new ol.layer.Vector({
+        source: vectorSource,
+        style: feature => {
+          const mt = (feature.get('marker_type') || '').toLowerCase();
+          console.log("DEBUG: styling feature type:", mt);
+          let iconUrl;
+          switch(mt) {
+            case 'japanese_offensive': iconUrl = ICONS.japanese; break;
+            case 'us_offensive': iconUrl = ICONS.usa; break;
+            case 'joint': iconUrl = ICONS.joint; break;
+            case 'bomb': iconUrl = ICONS.bomb; break;
+            case 'atomic': iconUrl = ICONS.atomic; break;
+            case 'surrender': iconUrl = ICONS.flag; break;
+            default: iconUrl = ICONS.default; console.warn("DEBUG: unknown marker_type for feature", feature.get('title'), mt);
+          }
+          return new ol.style.Style({
+            image: new ol.style.Icon({ src: iconUrl, scale:0.9, anchor:[0.5,0.5] })
+          });
+        }
+      });
+      map.addLayer(vectorLayer);
 
-<script>
-const map = L.map('map').setView([0, 160], 3);
+      // Popup
+      const popupEl = document.createElement('div');
+      popupEl.className='popup';
+      const overlay = new ol.Overlay({
+        element: popupEl,
+        autoPan: { animation: { duration:250 } }
+      });
+      map.addOverlay(overlay);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 7,
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+      map.on('singleclick', evt => {
+        const f = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
+        if (!f) { overlay.setPosition(undefined); return; }
+        const props = f.getProperties();
+        const content = `<h3>${props.title}</h3><div style="font-size:12px;color:#666;">${props.start_date}${props.end_date ? ' — ' + props.end_date : ''}</div>${props.short_desc ? '<div>' + props.short_desc + '</div>' : ''}${props.source ? '<div style="margin-top:6px;font-size:12px;"><a href="' + props.source + '" target="_blank">Read more</a></div>' : ''}`;
+        popupEl.innerHTML = content;
+        overlay.setPosition(evt.coordinate);
+      });
 
-const redIcon = L.ExtraMarkers.icon({icon: 'fa-circle', markerColor: 'red', shape: 'circle', prefix: 'fa'});
-const blueIcon = L.ExtraMarkers.icon({icon: 'fa-circle', markerColor: 'blue', shape: 'circle', prefix: 'fa'});
-const redBlueIcon = L.ExtraMarkers.icon({icon: 'fa-circle', markerColor: 'purple', shape: 'circle', prefix: 'fa'});
-const bombIcon = L.ExtraMarkers.icon({icon: 'fa-bomb', markerColor: 'orange', shape: 'star', prefix: 'fa'});
-const atomicIcon = L.ExtraMarkers.icon({icon: 'fa-bomb', markerColor: 'black', shape: 'star', prefix: 'fa'});
-const flagIcon = L.ExtraMarkers.icon({icon: 'fa-flag', markerColor: 'green', shape: 'star', prefix: 'fa'});
+      console.log("DEBUG: map & vector layer and popup set up");
 
-// GeoJSON features
-const features = [
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Mukden Incident / Manchuria seizure",
-      "description": "Japan stages incidents and seizes Manchuria, escalating conflict.",
-      "year": 1931,
-      "image": "images/1.jpg",
-      "iconType": "red",
-      "source": "https://www.britannica.com/event/Mukden-Incident"
-    },
-    "geometry": {"type": "Point","coordinates":[123.4328,41.8031]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Marco Polo Bridge / Full-scale China War",
-      "description": "Clash at Marco Polo Bridge triggers large-scale war between China and Japan.",
-      "year": 1937,
-      "image": "images/2.jpg",
-      "iconType": "red",
-      "source": "https://www.britannica.com/event/Marco-Polo-Bridge-Incident"
-    },
-    "geometry": {"type": "Point","coordinates":[116.2735,39.7406]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Pearl Harbor",
-      "description": "Japanese carrier aircraft attack Pearl Harbor, Hawaii.",
-      "year": 1941,
-      "image": "images/3.jpg",
-      "iconType": "red",
-      "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attack"
-    },
-    "geometry": {"type": "Point","coordinates":[-157.95,21.3496]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Battle of Midway",
-      "description": "Decisive U.S. naval victory at Midway changes course of Pacific War.",
-      "year": 1942,
-      "image": "images/4.jpg",
-      "iconType": "blue",
-      "source": "https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1942/midway.html"
-    },
-    "geometry": {"type": "Point","coordinates":[-177.3667,28.2]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Tarawa landing",
-      "description": "Brutal U.S. amphibious assault on Tarawa Atoll.",
-      "year": 1943,
-      "image": "images/5.jpg",
-      "iconType": "blue",
-      "source": "https://www.nationalww2museum.org/war/articles/battle-tarawa"
-    },
-    "geometry": {"type": "Point","coordinates":[172.9833,1.4167]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Saipan invasion",
-      "description": "U.S. Marines storm Saipan, heavy fighting ensues.",
-      "year": 1944,
-      "image": "images/6.jpg",
-      "iconType": "blue",
-      "source": "https://www.nps.gov/places/saipan-invasion.htm"
-    },
-    "geometry": {"type": "Point","coordinates":[145.75,15.2]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Leyte Gulf battle",
-      "description": "Largest naval battle in history; Japan’s fleet decisively defeated.",
-      "year": 1944,
-      "image": "images/7.jpg",
-      "iconType": "blue",
-      "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf"
-    },
-    "geometry": {"type": "Point","coordinates":[125.0,10.9]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Iwo Jima landing",
-      "description": "U.S. Marines capture Iwo Jima after fierce resistance.",
-      "year": 1945,
-      "image": "images/8.jpg",
-      "iconType": "blue",
-      "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima"
-    },
-    "geometry": {"type": "Point","coordinates":[141.3,24.8]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Flag raising at Mt. Suribachi",
-      "description": "Iconic U.S. flag raised atop Mt. Suribachi on Iwo Jima.",
-      "year": 1945,
-      "image": "images/9.jpg",
-      "iconType": "flag",
-      "source": "https://www.history.com/topics/world-war-ii/iwo-jima-flag-raising"
-    },
-    "geometry": {"type": "Point","coordinates":[141.3224,24.7761]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Tokyo firebombing",
-      "description": "Massive U.S. firebombing raid devastates Tokyo.",
-      "year": 1945,
-      "image": "images/10.jpg",
-      "iconType": "bomb",
-      "source": "https://www.nationalww2museum.org/war/articles/firebombing-tokyo"
-    },
-    "geometry": {"type": "Point","coordinates":[139.6917,35.6895]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Hiroshima bombing",
-      "description": "First atomic bomb dropped on Hiroshima by U.S.",
-      "year": 1945,
-      "image": "images/11.jpg",
-      "iconType": "atomic",
-      "source": "https://www.atomicheritage.org/history/hiroshima"
-    },
-    "geometry": {"type": "Point","coordinates":[132.4553,34.3853]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Nagasaki bombing",
-      "description": "Second atomic bomb dropped on Nagasaki by U.S.",
-      "year": 1945,
-      "image": "images/12.jpg",
-      "iconType": "atomic",
-      "source": "https://www.atomicheritage.org/history/nagasaki"
-    },
-    "geometry": {"type": "Point","coordinates":[129.8736,32.7503]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "V-J Day",
-      "description": "Japan announces surrender on August 15, 1945, effectively ending World War II.",
-      "year": 1945,
-      "image": "images/13.jpg",
-      "iconType": "flag",
-      "source": "https://www.britannica.com/event/World-War-II/Japan-and-the-surrender"
-    },
-    "geometry": {"type": "Point","coordinates":[139.6503,35.6762]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Japanese surrender signing",
-      "description": "Formal surrender signing aboard USS Missouri in Tokyo Bay.",
-      "year": 1945,
-      "image": "images/14.jpg",
-      "iconType": "flag",
-      "source": "https://www.britannica.com/event/Surrender-of-Japan"
-    },
-    "geometry": {"type": "Point","coordinates":[139.75,35.33]}
-  },
-  {
-    "type": "Feature",
-    "properties": {
-      "title": "Battle of Tarpan / Devil Duck",
-      "description": "Epic fight led by Devil Duck, legendary hero of the Pacific.",
-      "year": 1942,
-      "image": "images/15.jpg",
-      "iconType": "red",
-      "source": "https://en.wikipedia.org/wiki/Devil_Duck_(fictional)"
-    },
-    "geometry": {"type": "Point","coordinates":[125.0,12.0]}
-  }
-];
+    } catch (err) {
+      console.error("DEBUG: fatal map init error:", err);
+    }
 
-// Add features to map
-features.forEach((f, index) => {
-  let icon;
-  switch(f.properties.iconType){
-    case 'red': icon = redIcon; break;
-    case 'blue': icon = blueIcon; break;
-    case 'redblue': icon = redBlueIcon; break;
-    case 'bomb': icon = bombIcon; break;
-    case 'atomic': icon = atomicIcon; break;
-    case 'flag': icon = flagIcon; break;
-    default: icon = redIcon;
-  }
-  const marker = L.marker([f.geometry.coordinates[1], f.geometry.coordinates[0]], {icon: icon})
-    .bindPopup(`<strong>${index+1}. ${f.properties.title}</strong><br>
-                ${f.properties.description}<br>
-                <img class="popup-img" src="${f.properties.image}" alt="${f.properties.title}"><br>
-                <a href="${f.properties.source}" target="_blank">More info</a>`);
-  marker.addTo(map);
-});
+    // icons definitions (moved above for clarity)
+    function svgDataUrl(svg) { return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg); }
+    const ICONS = {
+      japanese: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#D0021B'/></svg>`),
+      usa: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#1F6FEB'/></svg>`),
+      joint: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#D0021B'/><stop offset='1' stop-color='#1F6FEB'/></linearGradient></defs><circle cx='18' cy='18' r='12' fill='url(#g)'/></svg>`),
+      bomb: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect x='8' y='6' rx='2' width='20' height='8' fill='#f0ad4e'/><path d='M16 14 L20 30 L16 28 L12 30 Z' fill='#c77'/></svg>`),
+      atomic: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='14' fill='#f44336'/><text x='20' y='24' font-size='12' font-weight='700' text-anchor='middle' fill='#fff'>A</text></svg>`),
+      flag: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect x='3' y='8' width='20' height='10' rx='2' fill='#b22234'/><rect x='3' y='8' width='10' height='5' fill='#3c3b6e'/></svg>`),
+      default: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#cccccc'/></svg>`)
+    };
 
-// Legend
-const legend = L.control({position: 'bottomleft'});
-legend.onAdd = function(map){
-  const div = L.DomUtil.create('div','legend');
-  div.innerHTML = `<strong>Legend</strong><br>
-                   <span style="color:red">●</span> Japanese offensive<br>
-                   <span style="color:blue">●</span> US offensive<br>
-                   <span style="color:purple">●</span> Joint offensive<br>
-                   <img src="images/bomb_icon.jpg" width="20"> Bombing<br>
-                   <img src="images/atomic_icon.jpg" width="20"> Atomic bomb<br>
-                   <img src="images/flag_icon.jpg" width="20"> Flag/Important site`;
-  return div;
-};
-legend.addTo(map);
-
-// Credit
-const credit = L.control({position:'bottomright'});
-credit.onAdd = function(map){
-  const div = L.DomUtil.create('div','legend');
-  div.innerHTML = 'Map &copy; Jessica Templet';
-  return div;
-};
-credit.addTo(map);
-
-</script>
+  </script>
 </body>
 </html>
