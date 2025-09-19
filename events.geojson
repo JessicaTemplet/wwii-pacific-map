@@ -6,12 +6,11 @@
       "properties": {
         "id": 1,
         "title": "Mukden Incident / Manchuria seizure",
-        "description": "Japan stages incidents and seizes Manchuria, escalating conflict.",
         "start_date": "1931-09-18",
         "end_date": "1931-09-18",
-        "year": 1931,
-        "image": "images/1.jpg",
+        "type": "battle",
         "iconType": "red",
+        "image": "images/1.jpg",
         "source": "https://www.britannica.com/event/Mukden-Incident"
       },
       "geometry": { "type": "Point", "coordinates": [123.4328, 41.8031] }
@@ -21,12 +20,11 @@
       "properties": {
         "id": 2,
         "title": "Marco Polo Bridge / Full-scale China War",
-        "description": "Clash at Marco Polo Bridge triggers large-scale war between China and Japan.",
         "start_date": "1937-07-07",
         "end_date": "1937-07-07",
-        "year": 1937,
-        "image": "images/2.jpg",
+        "type": "battle",
         "iconType": "red",
+        "image": "images/2.jpg",
         "source": "https://www.britannica.com/event/Marco-Polo-Bridge-Incident"
       },
       "geometry": { "type": "Point", "coordinates": [116.2735, 39.7406] }
@@ -36,12 +34,11 @@
       "properties": {
         "id": 3,
         "title": "Pearl Harbor",
-        "description": "Japanese carrier aircraft attack Pearl Harbor, Hawaii.",
         "start_date": "1941-12-07",
         "end_date": "1941-12-07",
-        "year": 1941,
-        "image": "images/3.jpg",
+        "type": "attack",
         "iconType": "red",
+        "image": "images/3.jpg",
         "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attack"
       },
       "geometry": { "type": "Point", "coordinates": [-157.95, 21.3496] }
@@ -50,181 +47,169 @@
       "type": "Feature",
       "properties": {
         "id": 4,
-        "title": "Battle of Midway",
-        "description": "Decisive U.S. naval victory at Midway changes course of Pacific War.",
-        "start_date": "1942-06-04",
-        "end_date": "1942-06-07",
-        "year": 1942,
+        "title": "Philippines Attacks",
+        "start_date": "1941-12-07",
+        "end_date": "1941-12-08",
+        "type": "attack",
+        "iconType": "red",
         "image": "images/4.jpg",
-        "iconType": "blue",
-        "source": "https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1942/midway.html"
+        "source": "https://www.nationalww2museum.org/war/articles/philippines-campaign-1941-42"
       },
-      "geometry": { "type": "Point", "coordinates": [-177.3667, 28.2] }
+      "geometry": { "type": "Point", "coordinates": [120.9842, 14.5995] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 5,
-        "title": "Tarawa landing",
-        "description": "Brutal U.S. amphibious assault on Tarawa Atoll.",
-        "start_date": "1943-11-20",
-        "end_date": "1943-11-23",
-        "year": 1943,
+        "title": "Malaya Attacks",
+        "start_date": "1941-12-07",
+        "end_date": "1941-12-08",
+        "type": "attack",
+        "iconType": "red",
         "image": "images/5.jpg",
-        "iconType": "blue",
-        "source": "https://www.nationalww2museum.org/war/articles/battle-tarawa"
+        "source": "https://www.britannica.com/event/Battle-of-Malaya"
       },
-      "geometry": { "type": "Point", "coordinates": [172.9833, 1.4167] }
+      "geometry": { "type": "Point", "coordinates": [101.6869, 3.139] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 6,
-        "title": "Saipan invasion",
-        "description": "U.S. Marines storm Saipan; heavy fighting ensues.",
-        "start_date": "1944-06-15",
-        "end_date": "1944-07-09",
-        "year": 1944,
+        "title": "Hong Kong Falls",
+        "start_date": "1941-12-08",
+        "end_date": "1941-12-25",
+        "type": "capture",
+        "iconType": "red",
         "image": "images/6.jpg",
-        "iconType": "blue",
-        "source": "https://www.nps.gov/places/saipan-invasion.htm"
+        "source": "https://www.cbc.ca/history/EPISCONTENTSE1EP13CH2PA1LE.html"
       },
-      "geometry": { "type": "Point", "coordinates": [145.75, 15.2] }
+      "geometry": { "type": "Point", "coordinates": [114.1694, 22.3193] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 7,
-        "title": "Leyte Gulf battle",
-        "description": "Largest naval battle in history; Japan's fleet decisively defeated.",
-        "start_date": "1944-10-23",
-        "end_date": "1944-10-26",
-        "year": 1944,
+        "title": "Guam Captured",
+        "start_date": "1941-12-07",
+        "end_date": "1941-12-10",
+        "type": "capture",
+        "iconType": "red",
         "image": "images/7.jpg",
-        "iconType": "blue",
-        "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf"
+        "source": "https://www.britannica.com/event/Battle-of-Guam-1941"
       },
-      "geometry": { "type": "Point", "coordinates": [125.0, 10.9] }
+      "geometry": { "type": "Point", "coordinates": [144.7937, 13.4443] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 8,
-        "title": "Iwo Jima landing",
-        "description": "U.S. Marines capture Iwo Jima after fierce resistance.",
-        "start_date": "1945-02-19",
-        "end_date": "1945-03-26",
-        "year": 1945,
+        "title": "Thailand Attacked",
+        "start_date": "1941-12-08",
+        "end_date": "1941-12-08",
+        "type": "attack",
+        "iconType": "red",
         "image": "images/8.jpg",
-        "iconType": "blue",
-        "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima"
+        "source": "https://www.britannica.com/place/Thailand"
       },
-      "geometry": { "type": "Point", "coordinates": [141.3, 24.8] }
+      "geometry": { "type": "Point", "coordinates": [100.5018, 13.7563] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 9,
-        "title": "Flag raising at Mt. Suribachi",
-        "description": "Iconic U.S. flag raised atop Mt. Suribachi on Iwo Jima.",
-        "start_date": "1945-02-23",
-        "end_date": "1945-02-23",
-        "year": 1945,
+        "title": "Wake Island Siege",
+        "start_date": "1941-12-08",
+        "end_date": "1941-12-23",
+        "type": "siege",
+        "iconType": "red",
         "image": "images/9.jpg",
-        "iconType": "flag",
-        "source": "https://www.history.com/topics/world-war-ii/iwo-jima-flag-raising"
+        "source": "https://www.history.navy.mil/research/library/online-reading-room/title-list-alphabetically/b/battle-of-wake-island.html"
       },
-      "geometry": { "type": "Point", "coordinates": [141.3224, 24.7761] }
+      "geometry": { "type": "Point", "coordinates": [166.6390, 19.2820] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 10,
-        "title": "Tokyo firebombing",
-        "description": "Massive U.S. firebombing raid devastates Tokyo.",
-        "start_date": "1945-03-09",
-        "end_date": "1945-03-10",
-        "year": 1945,
+        "title": "Joint Solomon Islands Campaign",
+        "start_date": "1942-01-01",
+        "end_date": "1945-08-15",
+        "type": "campaign",
+        "iconType": "joint",
         "image": "images/10.jpg",
-        "iconType": "bomb",
-        "source": "https://www.nationalww2museum.org/war/articles/firebombing-tokyo"
+        "source": "https://www.nationalww2museum.org/war/articles/solomon-islands-campaign"
       },
-      "geometry": { "type": "Point", "coordinates": [139.6917, 35.6895] }
+      "geometry": { "type": "Point", "coordinates": [159.0000, -8.4000] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 11,
-        "title": "Hiroshima bombing",
-        "description": "First atomic bomb dropped on Hiroshima by U.S.",
-        "start_date": "1945-08-06",
-        "end_date": "1945-08-06",
-        "year": 1945,
+        "title": "Singapore Surrenders",
+        "start_date": "1942-02-15",
+        "end_date": "1942-02-15",
+        "type": "capture",
+        "iconType": "red",
         "image": "images/11.jpg",
-        "iconType": "atomic",
-        "source": "https://www.history.com/topics/world-war-ii/bombing-of-hiroshima-and-nagasaki"
+        "source": "https://www.britannica.com/event/Battle-of-Singapore"
       },
-      "geometry": { "type": "Point", "coordinates": [132.4553, 34.3853] }
+      "geometry": { "type": "Point", "coordinates": [103.8198, 1.3521] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 12,
-        "title": "Nagasaki bombing",
-        "description": "Second atomic bomb dropped on Nagasaki by U.S.",
-        "start_date": "1945-08-09",
-        "end_date": "1945-08-09",
-        "year": 1945,
+        "title": "Darwin Bombing",
+        "start_date": "1942-02-19",
+        "end_date": "1942-02-19",
+        "type": "bombing",
+        "iconType": "red",
         "image": "images/12.jpg",
-        "iconType": "atomic",
-        "source": "https://www.history.com/topics/world-war-ii/bombing-of-hiroshima-and-nagasaki"
+        "source": "https://www.awm.gov.au/articles/atwar/bombing-darwin"
       },
-      "geometry": { "type": "Point", "coordinates": [129.8736, 32.7503] }
+      "geometry": { "type": "Point", "coordinates": [130.8456, -12.4634] }
     },
     {
       "type": "Feature",
       "properties": {
         "id": 13,
-        "title": "V-J Day (Emperor announces defeat)",
-        "description": "Japan announces surrender on August 15, 1945, effectively ending World War II.",
-        "start_date": "1945-08-15",
-        "end_date": "1945-08-15",
-        "year": 1945,
+        "title": "Bataan Death March begins",
+        "start_date": "1942-04-09",
+        "end_date": "1942-04-09",
+        "type": "atrocity",
+        "iconType": "red",
         "image": "images/13.jpg",
-        "iconType": "flag",
-        "source": "https://www.britannica.com/event/World-War-II/Japan-and-the-surrender"
+        "source": "https://www.history.com/topics/world-war-ii/bataan-death-march"
+      },
+      "geometry": { "type": "Point", "coordinates": [120.4850, 14.6000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 14,
+        "title": "Doolittle Raid",
+        "start_date": "1942-04-18",
+        "end_date": "1942-04-18",
+        "type": "raid",
+        "iconType": "blue",
+        "image": "images/14.jpg",
+        "source": "https://www.nationalww2museum.org/war/articles/doolittle-raid"
       },
       "geometry": { "type": "Point", "coordinates": [139.6503, 35.6762] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 14,
-        "title": "Japanese surrender signing (USS Missouri)",
-        "description": "Formal surrender signing aboard USS Missouri in Tokyo Bay.",
-        "start_date": "1945-09-02",
-        "end_date": "1945-09-02",
-        "year": 1945,
-        "image": "images/14.jpg",
-        "iconType": "flag",
-        "source": "https://www.britannica.com/event/Surrender-of-Japan"
-      },
-      "geometry": { "type": "Point", "coordinates": [139.75, 35.33] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "id": 15,
-        "title": "Devil Duck (Siwash) — Tarawa mascot",
-        "description": "Siwash the Devil Duck — legendary Marine mascot associated with the Tarawa landings (bonus marker).",
-        "start_date": "1943-11-20",
-        "end_date": "1943-11-23",
-        "year": 1943,
+        "title": "Battle of Coral Sea",
+        "start_date": "1942-05-04",
+        "end_date": "1942-05-08",
+        "type": "battle",
+        "iconType": "joint",
         "image": "images/15.jpg",
-        "iconType": "red",
-        "source": "https://en.wikipedia.org/wiki/Tarawa#Tarawa"
+        "source": "https://www.britannica.com/event/Battle-of-the-Coral-Sea"
       },
-      "geometry": { "type": "Point", "coordinates": [172.9833, 1.4167] }
+      "geometry": { "type": "Point", "coordinates": [152.0, -15.0] }
     }
   ]
 }
