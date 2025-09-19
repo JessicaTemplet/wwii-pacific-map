@@ -1,150 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>WWII Pacific Map</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Timeline -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-timeline-slider/dist/leaflet.timeline.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/leaflet-timeline-slider/dist/leaflet.timeline.min.js"></script>
-
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-    .legend, .credits {
-      background: white;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
-    }
-    .legend {
-      position: absolute;
-      bottom: 30px;
-      left: 10px;
-    }
-    .credits {
-      position: absolute;
-      bottom: 5px;
-      right: 10px;
-    }
-    .popup-img {
-      width: 200px;
-      display: block;
-      margin-bottom: 5px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>WWII Pacific Theater Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  #map { height: 90vh; width: 100%; }
+  .legend { background: white; padding: 10px; line-height: 1.5em; }
+  .timeline { background: white; padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-around; }
+  .timeline div { cursor: pointer; }
+  .popup-img { width: 80px; height: 60px; display: block; margin-bottom: 5px; }
+</style>
 </head>
 <body>
-  <div id="map"></div>
 
-  <div class="legend" id="legend">
-    <strong>Legend</strong><br>
-    <span style="color:red;">●</span> Japanese Attack/Capture<br>
-    <span style="color:blue;">●</span> Allied Operation<br>
-    <span style="color:green;">●</span> Joint Battle
-  </div>
+<div class="timeline" id="timeline">
+  <div data-year="1945">1945</div>
+  <div data-year="1944">1944</div>
+  <div data-year="1943">1943</div>
+  <div data-year="1942">1942</div>
+  <div data-year="1941">1941</div>
+</div>
 
-  <div class="credits" id="credits">
-    <em>Map created by Jessica Templet</em><br>
-    Data from historical sources.
-  </div>
+<div id="map"></div>
 
-  <script>
-    const map = L.map('map').setView([15, 150], 3);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-extra-markers/dist/js/leaflet.extra-markers.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css" />
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 10,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+<script>
+const map = L.map('map').setView([0, 160], 3);
 
-    // Numbered Circle Markers
-    function createNumberedMarker(feature, latlng) {
-      const num = feature.properties.id;
-      const color =
-        feature.properties.iconType === "blue" ? "blue" :
-        feature.properties.iconType === "green" || feature.properties.iconType === "joint" ? "green" :
-        "red";
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 7,
+  attribution: '© OpenStreetMap'
+}).addTo(map);
 
-      const markerHtml = `
-        <div style="
-          background:${color};
-          border-radius:50%;
-          width:28px;
-          height:28px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          color:white;
-          font-size:14px;
-          font-weight:bold;
-          border:2px solid white;
-        ">
-          ${num}
-        </div>
-      `;
-      return L.marker(latlng, {
-        icon: L.divIcon({
-          className: "numbered-icon",
-          html: markerHtml,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
-        })
-      });
-    }
+const redIcon = L.ExtraMarkers.icon({icon: 'fa-circle', markerColor: 'red', shape: 'circle', prefix: 'fa'});
+const blueIcon = L.ExtraMarkers.icon({icon: 'fa-circle', markerColor: 'blue', shape: 'circle', prefix: 'fa'});
+const redBlueIcon = L.ExtraMarkers.icon({icon: 'fa-circle', markerColor: 'purple', shape: 'circle', prefix: 'fa'});
+const bombIcon = L.ExtraMarkers.icon({icon: 'fa-bomb', markerColor: 'orange', shape: 'star', prefix: 'fa'});
+const atomicIcon = L.ExtraMarkers.icon({icon: 'fa-bomb', markerColor: 'black', shape: 'star', prefix: 'fa'});
+const flagIcon = L.ExtraMarkers.icon({icon: 'fa-flag', markerColor: 'green', shape: 'star', prefix: 'fa'});
 
-    // Popup
-    function onEachFeature(feature, layer) {
-      const props = feature.properties;
-      let popup = `<strong>${props.title}</strong><br>`;
-      if (props.image) {
-        popup += `<img src="${props.image}" class="popup-img"><br>`;
-      }
-      if (props.source) {
-        popup += `<a href="${props.source}" target="_blank">Learn more</a>`;
-      }
-      layer.bindPopup(popup);
-    }
+// GeoJSON features
+const features = [
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Mukden Incident / Manchuria seizure",
+      "description": "Japan stages incidents and seizes Manchuria, escalating conflict.",
+      "year": 1931,
+      "image": "images/1.jpg",
+      "iconType": "red",
+      "source": "https://www.britannica.com/event/Mukden-Incident"
+    },
+    "geometry": {"type": "Point","coordinates":[123.4328,41.8031]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Marco Polo Bridge / Full-scale China War",
+      "description": "Clash at Marco Polo Bridge triggers large-scale war between China and Japan.",
+      "year": 1937,
+      "image": "images/2.jpg",
+      "iconType": "red",
+      "source": "https://www.britannica.com/event/Marco-Polo-Bridge-Incident"
+    },
+    "geometry": {"type": "Point","coordinates":[116.2735,39.7406]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Pearl Harbor",
+      "description": "Japanese carrier aircraft attack Pearl Harbor, Hawaii.",
+      "year": 1941,
+      "image": "images/3.jpg",
+      "iconType": "red",
+      "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attack"
+    },
+    "geometry": {"type": "Point","coordinates":[-157.95,21.3496]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Battle of Midway",
+      "description": "Decisive U.S. naval victory at Midway changes course of Pacific War.",
+      "year": 1942,
+      "image": "images/4.jpg",
+      "iconType": "blue",
+      "source": "https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/world-war-ii/1942/midway.html"
+    },
+    "geometry": {"type": "Point","coordinates":[-177.3667,28.2]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Tarawa landing",
+      "description": "Brutal U.S. amphibious assault on Tarawa Atoll.",
+      "year": 1943,
+      "image": "images/5.jpg",
+      "iconType": "blue",
+      "source": "https://www.nationalww2museum.org/war/articles/battle-tarawa"
+    },
+    "geometry": {"type": "Point","coordinates":[172.9833,1.4167]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Saipan invasion",
+      "description": "U.S. Marines storm Saipan, heavy fighting ensues.",
+      "year": 1944,
+      "image": "images/6.jpg",
+      "iconType": "blue",
+      "source": "https://www.nps.gov/places/saipan-invasion.htm"
+    },
+    "geometry": {"type": "Point","coordinates":[145.75,15.2]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Leyte Gulf battle",
+      "description": "Largest naval battle in history; Japan’s fleet decisively defeated.",
+      "year": 1944,
+      "image": "images/7.jpg",
+      "iconType": "blue",
+      "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf"
+    },
+    "geometry": {"type": "Point","coordinates":[125.0,10.9]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Iwo Jima landing",
+      "description": "U.S. Marines capture Iwo Jima after fierce resistance.",
+      "year": 1945,
+      "image": "images/8.jpg",
+      "iconType": "blue",
+      "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima"
+    },
+    "geometry": {"type": "Point","coordinates":[141.3,24.8]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Flag raising at Mt. Suribachi",
+      "description": "Iconic U.S. flag raised atop Mt. Suribachi on Iwo Jima.",
+      "year": 1945,
+      "image": "images/9.jpg",
+      "iconType": "flag",
+      "source": "https://www.history.com/topics/world-war-ii/iwo-jima-flag-raising"
+    },
+    "geometry": {"type": "Point","coordinates":[141.3224,24.7761]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Tokyo firebombing",
+      "description": "Massive U.S. firebombing raid devastates Tokyo.",
+      "year": 1945,
+      "image": "images/10.jpg",
+      "iconType": "bomb",
+      "source": "https://www.nationalww2museum.org/war/articles/firebombing-tokyo"
+    },
+    "geometry": {"type": "Point","coordinates":[139.6917,35.6895]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Hiroshima bombing",
+      "description": "First atomic bomb dropped on Hiroshima by U.S.",
+      "year": 1945,
+      "image": "images/11.jpg",
+      "iconType": "atomic",
+      "source": "https://www.atomicheritage.org/history/hiroshima"
+    },
+    "geometry": {"type": "Point","coordinates":[132.4553,34.3853]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Nagasaki bombing",
+      "description": "Second atomic bomb dropped on Nagasaki by U.S.",
+      "year": 1945,
+      "image": "images/12.jpg",
+      "iconType": "atomic",
+      "source": "https://www.atomicheritage.org/history/nagasaki"
+    },
+    "geometry": {"type": "Point","coordinates":[129.8736,32.7503]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "V-J Day",
+      "description": "Japan announces surrender on August 15, 1945, effectively ending World War II.",
+      "year": 1945,
+      "image": "images/13.jpg",
+      "iconType": "flag",
+      "source": "https://www.britannica.com/event/World-War-II/Japan-and-the-surrender"
+    },
+    "geometry": {"type": "Point","coordinates":[139.6503,35.6762]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Japanese surrender signing",
+      "description": "Formal surrender signing aboard USS Missouri in Tokyo Bay.",
+      "year": 1945,
+      "image": "images/14.jpg",
+      "iconType": "flag",
+      "source": "https://www.britannica.com/event/Surrender-of-Japan"
+    },
+    "geometry": {"type": "Point","coordinates":[139.75,35.33]}
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "title": "Battle of Tarpan / Devil Duck",
+      "description": "Epic fight led by Devil Duck, legendary hero of the Pacific.",
+      "year": 1942,
+      "image": "images/15.jpg",
+      "iconType": "red",
+      "source": "https://en.wikipedia.org/wiki/Devil_Duck_(fictional)"
+    },
+    "geometry": {"type": "Point","coordinates":[125.0,12.0]}
+  }
+];
 
-    // Load GeoJSON with Timeline
-    fetch('events.geojson')
-      .then(res => res.json())
-      .then(data => {
-        const timeline = L.timeline(data, {
-          getInterval: function(feature) {
-            return {
-              start: new Date(feature.properties.start_date),
-              end: new Date(feature.properties.end_date)
-            };
-          },
-          pointToLayer: createNumberedMarker,
-          onEachFeature: onEachFeature
-        });
+// Add features to map
+features.forEach((f, index) => {
+  let icon;
+  switch(f.properties.iconType){
+    case 'red': icon = redIcon; break;
+    case 'blue': icon = blueIcon; break;
+    case 'redblue': icon = redBlueIcon; break;
+    case 'bomb': icon = bombIcon; break;
+    case 'atomic': icon = atomicIcon; break;
+    case 'flag': icon = flagIcon; break;
+    default: icon = redIcon;
+  }
+  const marker = L.marker([f.geometry.coordinates[1], f.geometry.coordinates[0]], {icon: icon})
+    .bindPopup(`<strong>${index+1}. ${f.properties.title}</strong><br>
+                ${f.properties.description}<br>
+                <img class="popup-img" src="${f.properties.image}" alt="${f.properties.title}"><br>
+                <a href="${f.properties.source}" target="_blank">More info</a>`);
+  marker.addTo(map);
+});
 
-        const slider = L.timelineSliderControl({
-          formatOutput: date => new Date(date).getUTCFullYear(),
-          steps: 1000,
-          duration: 20000,
-          showTicks: true
-        });
+// Legend
+const legend = L.control({position: 'bottomleft'});
+legend.onAdd = function(map){
+  const div = L.DomUtil.create('div','legend');
+  div.innerHTML = `<strong>Legend</strong><br>
+                   <span style="color:red">●</span> Japanese offensive<br>
+                   <span style="color:blue">●</span> US offensive<br>
+                   <span style="color:purple">●</span> Joint offensive<br>
+                   <img src="images/bomb_icon.jpg" width="20"> Bombing<br>
+                   <img src="images/atomic_icon.jpg" width="20"> Atomic bomb<br>
+                   <img src="images/flag_icon.jpg" width="20"> Flag/Important site`;
+  return div;
+};
+legend.addTo(map);
 
-        map.addControl(slider);
-        slider.addTimelines(timeline);
-        timeline.addTo(map);
-      });
-  </script>
+// Credit
+const credit = L.control({position:'bottomright'});
+credit.onAdd = function(map){
+  const div = L.DomUtil.create('div','legend');
+  div.innerHTML = 'Map &copy; Jessica Templet';
+  return div;
+};
+credit.addTo(map);
+
+</script>
 </body>
 </html>
