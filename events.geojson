@@ -8,10 +8,14 @@
         "title": "Mukden Incident / Manchuria seizure",
         "start_date": "1931-09-18",
         "end_date": "1931-09-18",
+        "side_offensive": "Japan",
+        "domain": "land",
         "type": "battle",
-        "iconType": "red",
-        "image": "images/1.jpg",
-        "source": "https://www.britannica.com/event/Mukden-Incident"
+        "short_desc": "Japan stages incidents and seizes Manchuria, escalating conflict.",
+        "source": "https://www.britannica.com/event/Mukden-Incident",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [123.4328, 41.8031] }
     },
@@ -22,10 +26,14 @@
         "title": "Marco Polo Bridge / Full-scale China War",
         "start_date": "1937-07-07",
         "end_date": "1937-07-07",
+        "side_offensive": "Japan",
+        "domain": "land",
         "type": "battle",
-        "iconType": "red",
-        "image": "images/2.jpg",
-        "source": "https://www.britannica.com/event/Marco-Polo-Bridge-Incident"
+        "short_desc": "Clash at Marco Polo Bridge triggers large-scale war between China and Japan.",
+        "source": "https://www.britannica.com/event/Marco-Polo-Bridge-Incident",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [116.2735, 39.7406] }
     },
@@ -33,183 +41,649 @@
       "type": "Feature",
       "properties": {
         "id": 3,
-        "title": "Pearl Harbor",
+        "title": "Japan occupies heart of China / Nanking (Rape of Nanking)",
+        "start_date": "1937-12-01",
+        "end_date": "1938-01-31",
+        "side_offensive": "Japan",
+        "domain": "land",
+        "type": "atrocity",
+        "short_desc": "Massacre in Nanking; large-scale atrocities and civilian suffering.",
+        "source": "https://www.history.com/topics/japan/nanjing-massacre",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [118.7969, 32.0603] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "title": "Japan seizes French Indochina (Vietnam)",
+        "start_date": "1940-09-1940",
+        "end_date": "1940-09-30",
+        "side_offensive": "Japan",
+        "domain": "land",
+        "type": "invasion",
+        "short_desc": "Japan occupies French Indochina, tightening grip on Southeast Asia.",
+        "source": "https://www.britannica.com/place/Vietnam/World-War-II-and-its-aftermath",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [105.8342, 21.0278] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "title": "Day of Infamy: Pearl Harbor",
         "start_date": "1941-12-07",
         "end_date": "1941-12-07",
+        "side_offensive": "Japan",
+        "domain": "sea/air",
         "type": "attack",
-        "iconType": "red",
-        "image": "images/3.jpg",
-        "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attack"
+        "short_desc": "Japanese carrier fleet launches surprise strike on U.S. Pacific Fleet; >2,400 killed.",
+        "source": "https://www.nationalww2museum.org/war/articles/pearl-harbor-attack",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [-157.95, 21.3496] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 4,
-        "title": "Philippines Attacks",
+        "id": 6,
+        "title": "Japan attacks Philippines",
         "start_date": "1941-12-07",
         "end_date": "1941-12-08",
+        "side_offensive": "Japan",
+        "domain": "combined",
         "type": "attack",
-        "iconType": "red",
-        "image": "images/4.jpg",
-        "source": "https://www.nationalww2museum.org/war/articles/philippines-campaign-1941-42"
+        "short_desc": "Japanese air raids and landings in the Philippines, beginning wide campaign.",
+        "source": "https://www.nationalww2museum.org/war/articles/philippines-campaign-1941-42",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [120.9842, 14.5995] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 5,
-        "title": "Malaya Attacks",
+        "id": 7,
+        "title": "Japan attacks Malaya",
         "start_date": "1941-12-07",
         "end_date": "1941-12-08",
+        "side_offensive": "Japan",
+        "domain": "combined",
         "type": "attack",
-        "iconType": "red",
-        "image": "images/5.jpg",
-        "source": "https://www.britannica.com/event/Battle-of-Malaya"
+        "short_desc": "Japanese landings in Malaya begin; rapid advance toward Singapore.",
+        "source": "https://www.britannica.com/event/Battle-of-Malaya",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [101.6869, 3.139] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 6,
-        "title": "Hong Kong Falls",
+        "id": 8,
+        "title": "Hong Kong falls",
         "start_date": "1941-12-08",
         "end_date": "1941-12-25",
+        "side_offensive": "Japan",
+        "domain": "land",
         "type": "capture",
-        "iconType": "red",
-        "image": "images/6.jpg",
-        "source": "https://www.cbc.ca/history/EPISCONTENTSE1EP13CH2PA1LE.html"
+        "short_desc": "British colony surrenders to Japanese forces after intense fighting.",
+        "source": "https://www.cbc.ca/history/EPISCONTENTSE1EP13CH2PA1LE.html",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [114.1694, 22.3193] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 7,
-        "title": "Guam Captured",
+        "id": 9,
+        "title": "Guam attacked and captured",
         "start_date": "1941-12-07",
         "end_date": "1941-12-10",
+        "side_offensive": "Japan",
+        "domain": "land",
         "type": "capture",
-        "iconType": "red",
-        "image": "images/7.jpg",
-        "source": "https://www.britannica.com/event/Battle-of-Guam-1941"
+        "short_desc": "Japanese forces capture Guam early in the war.",
+        "source": "https://www.britannica.com/event/Battle-of-Guam-World-War-II",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [144.7937, 13.4443] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 8,
-        "title": "Thailand Attacked",
+        "id": 10,
+        "title": "Japan attacks Thailand",
         "start_date": "1941-12-08",
         "end_date": "1941-12-08",
+        "side_offensive": "Japan",
+        "domain": "combined",
         "type": "attack",
-        "iconType": "red",
-        "image": "images/8.jpg",
-        "source": "https://www.britannica.com/place/Thailand"
+        "short_desc": "Japan forces Thai capitulation; secures routes for campaigns into Burma & Malaya.",
+        "source": "https://www.britannica.com/place/Thailand",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [100.5018, 13.7563] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 9,
-        "title": "Wake Island Siege",
+        "id": 11,
+        "title": "Wake Island besieged and captured",
         "start_date": "1941-12-08",
         "end_date": "1941-12-23",
+        "side_offensive": "Japan",
+        "domain": "combined",
         "type": "siege",
-        "iconType": "red",
-        "image": "images/9.jpg",
-        "source": "https://www.history.navy.mil/research/library/online-reading-room/title-list-alphabetically/b/battle-of-wake-island.html"
+        "short_desc": "After weeks of bombing and invasion, Wake Island falls to Japanese forces.",
+        "source": "https://www.history.navy.mil/research/library/online-reading-room/title-list-alphabetically/b/battle-of-wake-island.html",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [166.6390, 19.2820] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 10,
-        "title": "Joint Solomon Islands Campaign",
+        "id": 12,
+        "title": "Solomon Islands campaign begins",
         "start_date": "1942-01-01",
         "end_date": "1945-08-15",
+        "side_offensive": "Joint",
+        "domain": "combined",
         "type": "campaign",
-        "iconType": "joint",
-        "image": "images/10.jpg",
-        "source": "https://www.nationalww2museum.org/war/articles/solomon-islands-campaign"
+        "short_desc": "Long campaign across Solomons, New Guinea and nearby islands (Rabaul, Guadalcanal, etc.).",
+        "source": "https://www.nationalww2museum.org/war/articles/solomon-islands-campaign",
+        "marker_type": "joint",
+        "marker_color": "#7A3EE6",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [159.0000, -8.4000] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 11,
-        "title": "Singapore Surrenders",
+        "id": 13,
+        "title": "Singapore surrenders",
         "start_date": "1942-02-15",
         "end_date": "1942-02-15",
+        "side_offensive": "Japan",
+        "domain": "land",
         "type": "capture",
-        "iconType": "red",
-        "image": "images/11.jpg",
-        "source": "https://www.britannica.com/event/Battle-of-Singapore"
+        "short_desc": "Large British force surrenders to Japanese command in one of the war's largest defeats.",
+        "source": "https://www.britannica.com/event/Battle-of-Singapore",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [103.8198, 1.3521] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 12,
-        "title": "Darwin Bombing",
+        "id": 14,
+        "title": "Bombing of Darwin",
         "start_date": "1942-02-19",
         "end_date": "1942-02-19",
+        "side_offensive": "Japan",
+        "domain": "air",
         "type": "bombing",
-        "iconType": "red",
-        "image": "images/12.jpg",
-        "source": "https://www.awm.gov.au/articles/atwar/bombing-darwin"
+        "short_desc": "Japanese air attack on Darwin, Australia — many civilian and military casualties.",
+        "source": "https://www.awm.gov.au/articles/atwar/bombing-darwin",
+        "marker_type": "bomb",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [130.8456, -12.4634] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 13,
+        "id": 15,
         "title": "Bataan Death March begins",
         "start_date": "1942-04-09",
         "end_date": "1942-04-09",
+        "side_offensive": "Japan",
+        "domain": "land",
         "type": "atrocity",
-        "iconType": "red",
-        "image": "images/13.jpg",
-        "source": "https://www.history.com/topics/world-war-ii/bataan-death-march"
+        "short_desc": "Thousands of prisoners forced to march under brutal conditions; many die.",
+        "source": "https://www.history.com/topics/world-war-ii/bataan-death-march",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [120.4850, 14.6000] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 14,
+        "id": 16,
         "title": "Doolittle Raid",
         "start_date": "1942-04-18",
         "end_date": "1942-04-18",
+        "side_offensive": "USA",
+        "domain": "air",
         "type": "raid",
-        "iconType": "blue",
-        "image": "images/14.jpg",
-        "source": "https://www.nationalww2museum.org/war/articles/doolittle-raid"
+        "short_desc": "U.S. carrier-launched bomber raid on Tokyo and other cities; important morale boost.",
+        "source": "https://www.nationalww2museum.org/war/articles/doolittle-raid",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
       },
       "geometry": { "type": "Point", "coordinates": [139.6503, 35.6762] }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": 15,
-        "title": "Battle of Coral Sea",
+        "id": 17,
+        "title": "Battle of the Coral Sea",
         "start_date": "1942-05-04",
         "end_date": "1942-05-08",
-        "type": "battle",
-        "iconType": "joint",
-        "image": "images/15.jpg",
-        "source": "https://www.britannica.com/event/Battle-of-the-Coral-Sea"
+        "side_offensive": "Joint",
+        "domain": "sea",
+        "type": "naval",
+        "short_desc": "Carrier battle that halted Japanese advance toward Australia; both sides lost ships.",
+        "source": "https://www.britannica.com/event/Battle-of-the-Coral-Sea",
+        "marker_type": "joint",
+        "marker_color": "#7A3EE6",
+        "thumbnail": ""
       },
-      "geometry": { "type": "Point", "coordinates": [152.0, -15.0] }
+      "geometry": { "type": "Point", "coordinates": [154.0000, -18.0000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 18,
+        "title": "Aleutians seized (Attu/Kiska)",
+        "start_date": "1942-06-03",
+        "end_date": "1942-06-08",
+        "side_offensive": "Japan",
+        "domain": "land",
+        "type": "invasion",
+        "short_desc": "Japanese occupy parts of the Aleutian Islands (northern diversion).",
+        "source": "https://www.britannica.com/place/Aleutian-Islands",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [-173.1816, 52.8569] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 19,
+        "title": "Victory at Midway",
+        "start_date": "1942-06-04",
+        "end_date": "1942-06-07",
+        "side_offensive": "USA",
+        "domain": "sea",
+        "type": "naval",
+        "short_desc": "U.S. ambush and decisive victory sinking four Japanese carriers—turning point.",
+        "source": "https://www.history.navy.mil",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [-177.3500, 28.2000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 20,
+        "title": "Guadalcanal Campaign",
+        "start_date": "1942-08-07",
+        "end_date": "1943-02-09",
+        "side_offensive": "USA",
+        "domain": "combined",
+        "type": "campaign",
+        "short_desc": "Allied amphibious landings and months of brutal fighting to secure Guadalcanal.",
+        "source": "https://www.nationalww2museum.org/war/articles/guadalcanal-campaign",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [160.1562, -9.6460] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 21,
+        "title": "Gilbert & Marshall Islands campaign",
+        "start_date": "1942-08-01",
+        "end_date": "1944-02-29",
+        "side_offensive": "USA",
+        "domain": "combined",
+        "type": "campaign",
+        "short_desc": "Series of island battles including Tarawa, Kwajalein and Eniwetok.",
+        "source": "https://www.nationalww2museum.org/war/articles/gilbert-and-marshall-islands-campaign",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [170.0000, 7.0000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 22,
+        "title": "Aleutians retaken (Attu)",
+        "start_date": "1943-08-24",
+        "end_date": "1943-08-24",
+        "side_offensive": "USA",
+        "domain": "land",
+        "type": "capture",
+        "short_desc": "U.S. forces reclaim Attu and regain control of Aleutians.",
+        "source": "https://www.britannica.com/event/Battle-of-Attu",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [-173.9000, 52.9333] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 23,
+        "title": "Amphibious assault on Tarawa",
+        "start_date": "1943-11-20",
+        "end_date": "1943-11-23",
+        "side_offensive": "USA",
+        "domain": "land",
+        "type": "assault",
+        "short_desc": "Heavy fighting by US Marines to seize Tarawa; many casualties.",
+        "source": "https://www.britannica.com/event/Battle-of-Tarawa",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [172.9833, 1.4167] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 24,
+        "title": "Saipan captured",
+        "start_date": "1944-06-15",
+        "end_date": "1944-07-09",
+        "side_offensive": "USA",
+        "domain": "combined",
+        "type": "capture",
+        "short_desc": "Bloody battle; capture puts B-29 bombers within range of Japan.",
+        "source": "https://www.britannica.com/event/Battle-of-Saipan",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [145.7500, 15.1733] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 25,
+        "title": "Great Marianas 'Turkey Shoot' (Philippine Sea)",
+        "start_date": "1944-06-19",
+        "end_date": "1944-06-20",
+        "side_offensive": "USA",
+        "domain": "air",
+        "type": "air_battle",
+        "short_desc": "US carrier planes heavily defeat Japanese naval air power.",
+        "source": "https://www.history.com/topics/world-war-ii/battle-of-the-philippine-sea",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [147.0000, 16.0000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 26,
+        "title": "Liberation of Philippines (Leyte landings & campaign)",
+        "start_date": "1944-10-17",
+        "end_date": "1944-12-26",
+        "side_offensive": "USA",
+        "domain": "combined",
+        "type": "campaign",
+        "short_desc": "Large amphibious landings and operations to liberate the Philippines.",
+        "source": "https://www.nationalww2museum.org/war/articles/philippine-campaign-1944-45",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [122.0000, 12.0000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 27,
+        "title": "Gen. MacArthur returns (Leyte)",
+        "start_date": "1944-10-20",
+        "end_date": "1944-10-20",
+        "side_offensive": "USA",
+        "domain": "combined",
+        "type": "landing",
+        "short_desc": "MacArthur famously returns to the Philippines, wading ashore at Leyte.",
+        "source": "https://www.nationalww2museum.org/war/articles/macarthur-returns-philippines",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [123.8854, 10.3090] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 28,
+        "title": "Battle of Leyte Gulf",
+        "start_date": "1944-10-23",
+        "end_date": "1944-10-26",
+        "side_offensive": "USA",
+        "domain": "sea",
+        "type": "naval",
+        "short_desc": "Largest naval battle in history; Japanese fleet crippled.",
+        "source": "https://www.britannica.com/event/Battle-of-Leyte-Gulf",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [125.3000, 10.7000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 29,
+        "title": "Battle of Iwo Jima",
+        "start_date": "1945-02-19",
+        "end_date": "1945-03-26",
+        "side_offensive": "USA",
+        "domain": "land",
+        "type": "assault",
+        "short_desc": "Brutal battle to secure airfields near Japan; iconic flag-raising.",
+        "source": "https://www.history.com/topics/world-war-ii/battle-of-iwo-jima",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [141.3223, 24.7804] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 30,
+        "title": "Flag-raising on Mount Suribachi",
+        "start_date": "1945-02-23",
+        "end_date": "1945-02-23",
+        "side_offensive": "USA",
+        "domain": "land",
+        "type": "surrender_symbol",
+        "short_desc": "Marines raise the American flag atop Mt. Suribachi on Iwo Jima.",
+        "source": "https://www.history.com/topics/world-war-ii/iwo-jima-flag-raising",
+        "marker_type": "surrender",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [141.3224, 24.7761] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 31,
+        "title": "Tokyo firebombing (Operation Meetinghouse)",
+        "start_date": "1945-03-09",
+        "end_date": "1945-03-10",
+        "side_offensive": "USA",
+        "domain": "air",
+        "type": "bomb",
+        "short_desc": "Massive incendiary raid on Tokyo causing huge civilian casualties.",
+        "source": "https://www.history.com/this-day-in-history/tokyo-firebombing",
+        "marker_type": "bomb",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [139.6917, 35.6895] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 32,
+        "title": "Battle of Okinawa",
+        "start_date": "1945-04-01",
+        "end_date": "1945-06-22",
+        "side_offensive": "USA",
+        "domain": "combined",
+        "type": "assault",
+        "short_desc": "Bloodiest Pacific battle — heavy casualties among service members and civilians.",
+        "source": "https://www.britannica.com/event/Battle-of-Okinawa",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [127.8056, 26.3344] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 33,
+        "title": "Battleship Yamato sunk",
+        "start_date": "1945-04-07",
+        "end_date": "1945-04-07",
+        "side_offensive": "USA",
+        "domain": "sea/air",
+        "type": "naval_action",
+        "short_desc": "Japanese battleship Yamato sunk by U.S. air and sea forces on suicide mission.",
+        "source": "https://www.britannica.com/topic/Operation-Tengo",
+        "marker_type": "us_offensive",
+        "marker_color": "#1F6FEB",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [131.0000, 31.5730] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 34,
+        "title": "USS Indianapolis sunk",
+        "start_date": "1945-07-30",
+        "end_date": "1945-07-30",
+        "side_offensive": "Japan",
+        "domain": "sea",
+        "type": "naval_loss",
+        "short_desc": "Heavy cruiser torpedoed and sunk after delivering components for atomic bomb; massive loss of life.",
+        "source": "https://www.history.navy.mil",
+        "marker_type": "japanese_offensive",
+        "marker_color": "#D0021B",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [129.8000, 12.1000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 35,
+        "title": "Atomic bomb on Hiroshima",
+        "start_date": "1945-08-06",
+        "end_date": "1945-08-06",
+        "side_offensive": "USA",
+        "domain": "air",
+        "type": "atomic",
+        "short_desc": "U.S. drops atomic bomb on Hiroshima; immediate and long-term devastation.",
+        "source": "https://www.history.com/topics/world-war-ii/bombing-of-hiroshima-and-nagasaki",
+        "marker_type": "atomic",
+        "marker_color": "#f44336",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [132.4553, 34.3853] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 36,
+        "title": "Atomic bomb on Nagasaki",
+        "start_date": "1945-08-09",
+        "end_date": "1945-08-09",
+        "side_offensive": "USA",
+        "domain": "air",
+        "type": "atomic",
+        "short_desc": "U.S. drops atomic bomb on Nagasaki; further devastation leads to surrender decisions.",
+        "source": "https://www.history.com/topics/world-war-ii/bombing-of-hiroshima-and-nagasaki",
+        "marker_type": "atomic",
+        "marker_color": "#f44336",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [129.8736, 32.7503] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 37,
+        "title": "Emperor announces defeat (V-J Day)",
+        "start_date": "1945-08-15",
+        "end_date": "1945-08-15",
+        "side_offensive": "Japan",
+        "domain": "combined",
+        "type": "surrender_declaration",
+        "short_desc": "Emperor Hirohito announces Japan's acceptance of Allied terms; public announcement ends major combat.",
+        "source": "https://www.britannica.com/event/World-War-II/Japan-and-the-surrender",
+        "marker_type": "surrender",
+        "marker_color": "#0000FF",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [139.6503, 35.6762] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 38,
+        "title": "Surrender signing aboard USS Missouri (Tokyo Bay)",
+        "start_date": "1945-09-02",
+        "end_date": "1945-09-02",
+        "side_offensive": "Joint",
+        "domain": "sea",
+        "type": "surrender",
+        "short_desc": "Formal signing of surrender documents aboard USS Missouri in Tokyo Bay.",
+        "source": "https://www.britannica.com/event/Surrender-of-Japan",
+        "marker_type": "surrender",
+        "marker_color": "#0000FF",
+        "thumbnail": ""
+      },
+      "geometry": { "type": "Point", "coordinates": [139.7500, 35.3300] }
     }
   ]
 }
