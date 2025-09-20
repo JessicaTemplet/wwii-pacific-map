@@ -8,8 +8,9 @@
   <style>
     html, body { margin:0; padding:0; height:100%; width:100%; }
     #map { position:absolute; top:0; left:0; right:0; bottom:0; z-index:1000; }
-    .topbar { position:absolute; top:0; left:0; right:0; height:70px; background:#0b2545; color:#fff; display:flex; align-items:center; padding:10px 16px; z-index:2000; }
-    .timeline { margin-left:auto; display:flex; gap:8px; align-items:center; }
+    .topbar { position:absolute; top:0; left:0; right:0; height:auto; background:#0b2545; color:#fff; display:block; padding:10px 16px; text-align:center; z-index:2000; }
+    .topbar .title { font-size: 1.5em; font-weight: bold; margin-bottom: 8px; }
+    .timeline { display:flex; gap:8px; align-items:center; justify-content: center; }
     .year-pill { background:rgba(255,255,255,0.1); padding:6px 10px; border-radius:4px; color:#fff; cursor:pointer; }
     .year-tooltip { position:absolute; top:70px; right:12px; background:#fff; color:#000; padding:8px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.3); font-size:13px; display:none; max-width:300px; z-index:3000; }
     .legend-box { position:absolute; left:12px; bottom:12px; background:#fff; padding:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); font-size:13px; z-index:2000; }
@@ -159,4 +160,3 @@
   </script>
 </body>
 </html>
-
