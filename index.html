@@ -14,7 +14,9 @@
     .year-tooltip { position:absolute; top:70px; right:12px; background:#fff; color:#000; padding:8px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.3); font-size:13px; display:none; max-width:300px; z-index:3000; }
     .legend-box, .credits-box { position:absolute; left:12px; bottom:12px; background:#fff; padding:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); font-size:13px; z-index:2000; }
     .credits-box { bottom:80px; }
-    .legend-entry, .swatch { /* as before */ }
+    .legend-entry { display:flex; align-items:center; margin-bottom:5px; }
+    .legend-entry span { margin-left:8px; }
+    .swatch { width:12px; height:12px; border-radius:50%; }
     .popup { background:#fff; padding:8px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.25); max-width:300px; font-size:13px; }
     .popup img { width:100%; height:90px; object-fit:cover; border-radius:4px; margin-bottom:6px; }
   </style>
@@ -33,7 +35,51 @@
   <script>
     console.log("DEBUG: script started");
 
-    // Base map
+    // --- ICON AND LEGEND DATA ---
+    function svgDataUrl(svg) { return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg); }
+    const ICONS = {
+      japanese_offensive: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#D0021B'/></svg>`),
+      us_offensive: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#1F6FEB'/></svg>`),
+      joint: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#D0021B'/><stop offset='1' stop-color='#1F6FEB'/></linearGradient></defs><circle cx='18' cy='18' r='12' fill='url(#g)'/></svg>`),
+      bomb: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#f0ad4e'/></svg>`),
+      atomic: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='14' fill='#f44336'/><text x='20' y='24' font-size='12' font-weight='700' text-anchor='middle' fill='#fff'>A</text></svg>`),
+      surrender: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#0000FF'/></svg>`),
+      default: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#cccccc'/></svg>`)
+    };
+
+    const LEGEND_ITEMS = [
+      { type: 'japanese_offensive', label: 'Japanese Offensive', color: '#D0021B' },
+      { type: 'us_offensive', label: 'U.S. Offensive', color: '#1F6FEB' },
+      { type: 'joint', label: 'Joint Operations', color: '#7A3EE6' },
+      { type: 'bomb', label: 'Bombing', color: '#f0ad4e' },
+      { type: 'atomic', label: 'Atomic Bombing', color: '#f44336' },
+      { type: 'surrender', label: 'Surrender/Symbolic', color: '#0000FF' }
+    ];
+
+    function renderLegend() {
+      const legendBox = document.getElementById('legendBox');
+      let html = '<h4>Map Legend</h4>';
+      LEGEND_ITEMS.forEach(item => {
+        html += `<div class="legend-entry">
+                   <div class="swatch" style="background:${item.color};"></div>
+                   <span>${item.label}</span>
+                 </div>`;
+      });
+      legendBox.innerHTML = html;
+    }
+
+    function renderTimeline(features) {
+      const timelineEl = document.getElementById('timeline');
+      const years = new Set();
+      features.forEach(feature => {
+        const year = feature.get('start_date').substring(0, 4);
+        years.add(year);
+      });
+      const sortedYears = Array.from(years).sort();
+      timelineEl.innerHTML = sortedYears.map(year => `<div class="year-pill" data-year="${year}">${year}</div>`).join('');
+    }
+
+    // --- MAP INITIALIZATION ---
     try {
       const map = new ol.Map({
         target: 'map',
@@ -45,59 +91,62 @@
         view: new ol.View({
           center: ol.proj.fromLonLat([150, 5]),
           zoom: 3,
-          minZoom:2
+          minZoom: 2
         })
       });
       console.log("DEBUG: base map layer initialized");
-      
-      // Load geojson
+
       const vectorSource = new ol.source.Vector({
         format: new ol.format.GeoJSON(),
         url: 'events.geojson'
-      });
-      vectorSource.on('addfeature', function(event) {
-        console.log("DEBUG: feature added:", event.feature.getProperties().title);
-      });
-      vectorSource.on('error', function(e) {
-        console.error("DEBUG: error loading features:", e);
       });
 
       const vectorLayer = new ol.layer.Vector({
         source: vectorSource,
         style: feature => {
-          const mt = (feature.get('marker_type') || '').toLowerCase();
-          console.log("DEBUG: styling feature type:", mt);
-          let iconUrl;
-          switch(mt) {
-            case 'japanese_offensive': iconUrl = ICONS.japanese; break;
-            case 'us_offensive': iconUrl = ICONS.usa; break;
-            case 'joint': iconUrl = ICONS.joint; break;
-            case 'bomb': iconUrl = ICONS.bomb; break;
-            case 'atomic': iconUrl = ICONS.atomic; break;
-            case 'surrender': iconUrl = ICONS.flag; break;
-            default: iconUrl = ICONS.default; console.warn("DEBUG: unknown marker_type for feature", feature.get('title'), mt);
-          }
+          const mt = feature.get('marker_type');
+          let iconUrl = ICONS[mt] || ICONS.default;
+          
           return new ol.style.Style({
-            image: new ol.style.Icon({ src: iconUrl, scale:0.9, anchor:[0.5,0.5] })
+            image: new ol.style.Icon({ src: iconUrl, scale: 0.9, anchor: [0.5, 0.5] }),
+            text: new ol.style.Text({
+              text: feature.get('id').toString(),
+              fill: new ol.style.Fill({ color: '#fff' }),
+              font: 'bold 12px sans-serif',
+              offsetY: 0,
+            })
           });
         }
       });
       map.addLayer(vectorLayer);
 
-      // Popup
+      vectorSource.once('change', function(e) {
+        if (vectorSource.getState() === 'ready') {
+          const features = vectorSource.getFeatures();
+          renderTimeline(features);
+          renderLegend();
+          console.log("DEBUG: Data loaded. Timeline and legend rendered.");
+        }
+      });
+
       const popupEl = document.createElement('div');
-      popupEl.className='popup';
+      popupEl.className = 'popup';
       const overlay = new ol.Overlay({
         element: popupEl,
-        autoPan: { animation: { duration:250 } }
+        autoPan: { animation: { duration: 250 } }
       });
       map.addOverlay(overlay);
 
       map.on('singleclick', evt => {
         const f = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
-        if (!f) { overlay.setPosition(undefined); return; }
+        if (!f) {
+          overlay.setPosition(undefined);
+          return;
+        }
         const props = f.getProperties();
-        const content = `<h3>${props.title}</h3><div style="font-size:12px;color:#666;">${props.start_date}${props.end_date ? ' — ' + props.end_date : ''}</div>${props.short_desc ? '<div>' + props.short_desc + '</div>' : ''}${props.source ? '<div style="margin-top:6px;font-size:12px;"><a href="' + props.source + '" target="_blank">Read more</a></div>' : ''}`;
+        let content = `<h3>${props.title}</h3><div style="font-size:12px;color:#666;">${props.start_date}${props.end_date ? ' — ' + props.end_date : ''}</div>`;
+        content += props.short_desc ? `<div>${props.short_desc}</div>` : '';
+        content += props.source ? `<div style="margin-top:6px;font-size:12px;"><a href="${props.source}" target="_blank">Read more</a></div>` : '';
         popupEl.innerHTML = content;
         overlay.setPosition(evt.coordinate);
       });
@@ -107,19 +156,6 @@
     } catch (err) {
       console.error("DEBUG: fatal map init error:", err);
     }
-
-    // icons definitions (moved above for clarity)
-    function svgDataUrl(svg) { return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg); }
-    const ICONS = {
-      japanese: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#D0021B'/></svg>`),
-      usa: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#1F6FEB'/></svg>`),
-      joint: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#D0021B'/><stop offset='1' stop-color='#1F6FEB'/></linearGradient></defs><circle cx='18' cy='18' r='12' fill='url(#g)'/></svg>`),
-      bomb: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect x='8' y='6' rx='2' width='20' height='8' fill='#f0ad4e'/><path d='M16 14 L20 30 L16 28 L12 30 Z' fill='#c77'/></svg>`),
-      atomic: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='14' fill='#f44336'/><text x='20' y='24' font-size='12' font-weight='700' text-anchor='middle' fill='#fff'>A</text></svg>`),
-      flag: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect x='3' y='8' width='20' height='10' rx='2' fill='#b22234'/><rect x='3' y='8' width='10' height='5' fill='#3c3b6e'/></svg>`),
-      default: svgDataUrl(`<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><circle cx='18' cy='18' r='12' fill='#cccccc'/></svg>`)
-    };
-
   </script>
 </body>
 </html>
