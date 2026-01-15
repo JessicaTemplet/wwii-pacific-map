@@ -1,0 +1,109 @@
+import React from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LabelList
+} from 'recharts';
+
+const ElectionChart = () => {
+  const data = [
+    { year: '1972', Democrat: 29.2, DemName: 'McGovern', Republican: 47.2, RepName: 'Nixon', Independent: 0, IndName: '' },
+    { year: '1976', Democrat: 40.8, DemName: 'Carter', Republican: 39.1, RepName: 'Ford', Independent: 0, IndName: '' },
+    { year: '1980', Democrat: 35.5, DemName: 'Carter', Republican: 43.9, RepName: 'Reagan', Independent: 5.7, IndName: 'Anderson' },
+    { year: '1984', Democrat: 37.6, DemName: 'Mondale', Republican: 58.8, RepName: 'Reagan', Independent: 0, IndName: '' },
+    { year: '1988', Democrat: 41.8, DemName: 'Dukakis', Republican: 53.4, RepName: 'Bush', Independent: 0, IndName: '' },
+    { year: '1992', Democrat: 43.0, DemName: 'Clinton', Republican: 39.1, RepName: 'Bush', Independent: 19.7, IndName: 'Perot' },
+    { year: '1996', Democrat: 49.2, DemName: 'Clinton', Republican: 39.2, RepName: 'Dole', Independent: 8.4, IndName: 'Perot' },
+    { year: '2000', Democrat: 51.0, DemName: 'Gore', Republican: 48.4, RepName: 'Bush', Independent: 0, IndName: '' },
+    { year: '2004', Democrat: 59.0, DemName: 'Kerry', Republican: 62.0, RepName: 'Bush', Independent: 0, IndName: '' },
+    { year: '2008', Democrat: 69.5, DemName: 'Obama', Republican: 59.9, RepName: 'McCain', Independent: 0, IndName: '' },
+    { year: '2012', Democrat: 66.0, DemName: 'Obama', Republican: 60.9, RepName: 'Romney', Independent: 0, IndName: '' },
+    { year: '2016', Democrat: 65.9, DemName: 'Clinton', Republican: 63.0, RepName: 'Trump', Independent: 0, IndName: '' },
+    { year: '2020', Democrat: 81.3, DemName: 'Biden', Republican: 74.2, RepName: 'Trump', Independent: 0, IndName: '' },
+    { year: '2024', Democrat: 75.0, DemName: 'Harris', Republican: 77.3, RepName: 'Trump', Independent: 0, IndName: '' },
+  ];
+
+  const renderCustomLabel = (props, name) => {
+    const { x, y, width, height, value } = props;
+    if (!value || value === 0) return null;
+
+    return (
+      <text
+        x={x + width / 2}
+        y={y + height / 2}
+        fill="white"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontSize="12"
+        fontWeight="bold"
+      >
+        {name}
+      </text>
+    );
+  };
+
+  return (
+    <div className="w-full h-screen bg-gray-50 p-8">
+      <h2 className="text-2xl font-bold text-center mb-6">
+        Presidential Election Popular Votes (1972–2024)
+      </h2>
+
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 40, left: 30, bottom: 70 }}
+          barCategoryGap="20%"
+          barGap={8}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+
+          <XAxis
+            dataKey="year"
+            angle={-45}
+            textAnchor="end"
+            height={80}
+            label={{ value: 'Election Year', position: 'insideBottom', offset: -10 }}
+          />
+
+          <YAxis
+            domain={[25, 85]}
+            ticks={[25, 35, 45, 55, 65, 75, 85]}
+            label={{ value: 'Votes (Millions)', angle: -90, position: 'insideLeft' }}
+          />
+
+          <Tooltip />
+          <Legend verticalAlign="top" height={36} />
+
+          <Bar dataKey="Democrat" fill="#1e40af" barSize={38} name="Democrat">
+            <LabelList
+              dataKey="DemName"
+              content={(props) => renderCustomLabel(props, props.value)}
+            />
+          </Bar>
+
+          <Bar dataKey="Republican" fill="#dc2626" barSize={38} name="Republican">
+            <LabelList
+              dataKey="RepName"
+              content={(props) => renderCustomLabel(props, props.value)}
+            />
+          </Bar>
+
+          <Bar dataKey="Independent" fill="#16a34a" barSize={38} name="Independent">
+            <LabelList
+              dataKey="IndName"
+              content={(props) => renderCustomLabel(props, props.value)}
+            />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+export default ElectionChart;
