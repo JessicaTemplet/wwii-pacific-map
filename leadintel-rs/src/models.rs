@@ -1,16 +1,9 @@
-//! Data models — Rust equivalents of the SQLAlchemy ORM classes in `models.py`.
+//! Data models.
 //!
-//! Python used SQLAlchemy's declarative base so each class was both a Python
-//! object AND a DB table definition.  In Rust we separate those concerns:
+//! We separate concerns across three files:
 //!   - This file defines plain Rust structs (the data)
 //!   - `db.rs` defines the SQL schema (CREATE TABLE ...)
 //!   - `repository.rs` defines the queries (SELECT, INSERT, UPDATE ...)
-//!
-//! The structs derive `Debug` and `Clone`:
-//!   - `Debug`  lets you print them with {:?} — like Python's __repr__
-//!   - `Clone`  lets you call .clone() to make a copy — Python objects are
-//!              reference-counted so you never need to think about this, but
-//!              Rust moves values by default, so cloning is explicit.
 
 use chrono::{DateTime, Utc};
 
@@ -20,10 +13,8 @@ use chrono::{DateTime, Utc};
 
 /// A person to be enriched.
 ///
-/// Python equivalent: `class Lead(Base)` in models.py
-///
 /// Field notes:
-///   - `id` is a UUID string (same as Python's gen_uuid() default)
+///   - `id` is a UUID string
 ///   - `state` starts as "RAW", transitions to "DONE" when pipeline finishes
 ///   - `current_doubt` tracks how uncertain we are about this lead (0.0–1.0)
 ///   - `budget_cents` / `spent_cents` control how much we're allowed to spend
@@ -42,8 +33,6 @@ pub struct Lead {
 
 impl Lead {
     /// Create a new raw lead ready for enrichment.
-    /// Python equivalent: `Lead(name=name, company=company)` — SQLAlchemy fills
-    /// the defaults; here we fill them explicitly.
     pub fn new(name: impl Into<String>, company: impl Into<String>) -> Self {
         Lead {
             id:            uuid::Uuid::new_v4().to_string(),
@@ -63,8 +52,6 @@ impl Lead {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// A single piece of evidence about a lead from one source.
-///
-/// Python equivalent: `class Observation(Base)` in models.py
 ///
 /// Each call to an enrichment source produces one Observation per field it
 /// returns.  If two sources both return a title, you get two Observations —
@@ -109,8 +96,6 @@ impl Observation {
 
 /// One execution of one pipeline stage for one lead.
 ///
-/// Python equivalent: `class EnrichmentRun(Base)` in models.py
-///
 /// The `idempotency_key` is a unique string like "{lead_id}-shallow-v1".
 /// Before running a stage, we check whether a run with that key already exists.
 /// If it does, we skip — this is idempotency: running twice produces the same
@@ -151,8 +136,6 @@ impl EnrichmentRun {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// A derived insight about a lead, generated after enrichment.
-///
-/// Python equivalent: `class Signal(Base)` in models.py
 ///
 /// Examples: "title_conflict" (two sources disagree on title),
 /// "missing_title" (no source found a title at all).
