@@ -1,7 +1,5 @@
 //! Doubt score computation.
 //!
-//! Python equivalent: `leadintel/doubt.py` — compute_doubt(db, lead)
-//!
 //! The doubt score is a number from 0.0 to 1.0 that represents how uncertain
 //! we are about a lead's information:
 //!
@@ -17,11 +15,6 @@ use crate::models::Observation;
 
 /// Compute the doubt score for a lead given its current observations.
 ///
-/// Python equivalent:
-///     def compute_doubt(db: Session, lead):
-///         observations = db.query(Observation).filter(...).all()
-///         ...
-///
 /// Here we accept the already-fetched observations so the function stays pure
 /// (no DB access) — the caller fetches them before calling this.
 /// This makes it trivial to unit-test without a real database.
@@ -34,8 +27,6 @@ pub fn compute_doubt(observations: &[Observation]) -> f64 {
     let mut doubt = 0.0_f64;
 
     // Collect all title values we've seen.
-    // Python equivalent:
-    //     titles = [o.value for o in observations if o.field_name == "title"]
     let titles: Vec<&str> = observations
         .iter()
         .filter(|o| o.field_name == "title")
@@ -50,13 +41,11 @@ pub fn compute_doubt(observations: &[Observation]) -> f64 {
         .collect();
 
     // Missing title adds 0.4 to doubt.
-    // `is_empty()` is Rust's equivalent of `not titles` or `len(titles) == 0`.
     if titles.is_empty() {
         doubt += 0.4;
     }
 
     // Conflicting titles (more than one distinct value) adds 0.3.
-    // We use a HashSet to count unique values — same idea as Python's set(titles).
     let unique_titles: std::collections::HashSet<&&str> = titles.iter().collect();
     if unique_titles.len() > 1 {
         doubt += 0.3;
@@ -67,8 +56,7 @@ pub fn compute_doubt(observations: &[Observation]) -> f64 {
         doubt += 0.3;
     }
 
-    // Clamp to [0.0, 1.0] — same as Python's min(doubt, 1.0).
-    // Rust's f64::min() is a method; Python's min() is a built-in function.
+    // Clamp to [0.0, 1.0].
     doubt.min(1.0)
 }
 
