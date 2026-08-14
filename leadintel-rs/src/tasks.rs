@@ -1,29 +1,7 @@
 //! Enrichment tasks — the three pipeline stages.
 //!
-//! Python equivalent: `leadintel/core/tasks.py`
-//!   - shallow_enrichment()
-//!   - waterfall_enrichment()
-//!   - agent_enrichment()
-//!
-//! Each task is an `async fn` (tokio task).  They simulate calling real vendor
-//! APIs by sleeping and returning mock data, exactly like the Python versions.
-//!
-//! Key Rust concepts demonstrated here:
-//!
-//!   `async fn`       — declares an async function; equivalent to Python's
-//!                      `async def`.  Must be .await'd by the caller.
-//!
-//!   `tokio::time::sleep(Duration::from_secs_f64(...))`
-//!                    — non-blocking async sleep; equivalent to
-//!                      Python's `await asyncio.sleep(...)`.
-//!
-//!   `spawn_blocking` — runs synchronous (rusqlite) code on a thread-pool
-//!                      thread so the async runtime isn't blocked.  The
-//!                      Python code calls sync SQLAlchemy from async functions
-//!                      without this guard; Rust enforces you be explicit.
-//!
-//!   `Arc::clone`     — cheap clone of the shared DB handle (just bumps a
-//!                      reference count), then we `move` it into the closure.
+//! Each task simulates calling a vendor API by sleeping and returning mock
+//! data.
 
 use std::time::Duration;
 use std::sync::{Arc, Mutex};
@@ -37,7 +15,7 @@ use tokio::time::sleep;
 use crate::{db::Db, repository};
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock source definitions — mirrors MOCK_SOURCES in Python tasks.py
+// Mock source definitions
 // ─────────────────────────────────────────────────────────────────────────────
 
 struct MockSource {
@@ -50,8 +28,6 @@ struct MockSource {
 }
 
 // Static list of mock vendor sources tried in order by waterfall_enrichment.
-// `static` means the data lives for the whole program lifetime — same as a
-// Python module-level list, but Rust is explicit that it won't be dropped.
 static MOCK_SOURCES: &[MockSource] = &[
     MockSource {
         name:             "mock_apollo",
@@ -101,8 +77,6 @@ static AGENT_TITLE_POOL: &[&str] = &[
 
 /// Single fast source (mock_apollo), records whatever it returns.
 ///
-/// Python equivalent: async def shallow_enrichment(db, lead)
-///
 /// `lead_id: String` — we take an owned String rather than a reference because
 /// this value needs to outlive the `spawn_blocking` closure.  A reference
 /// can't cross the async/thread boundary, but an owned String can.
@@ -110,7 +84,6 @@ pub async fn shallow_enrichment(db: Db, lead_id: String) -> Result<()> {
     let key = format!("{lead_id}-shallow-v1");
 
     // Create the run record synchronously (spawn_blocking moves sync work off the async thread).
-    // `Arc::clone(&db)` produces a cheap second handle to the same Mutex<Connection>.
     let run_id = {
         let db2 = Arc::clone(&db);
         let key2 = key.clone();
@@ -122,7 +95,7 @@ pub async fn shallow_enrichment(db: Db, lead_id: String) -> Result<()> {
         }).await??
     };
 
-    // Simulate API latency — equivalent to Python's `await asyncio.sleep(0.4)`
+    // Simulate API latency
     sleep(Duration::from_secs_f64(0.4)).await;
 
     // Random mock results
@@ -156,8 +129,6 @@ pub async fn shallow_enrichment(db: Db, lead_id: String) -> Result<()> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Tries each mock source in priority order, stops when all fields are filled.
-///
-/// Python equivalent: async def waterfall_enrichment(db, lead)
 pub async fn waterfall_enrichment(db: Db, lead_id: String) -> Result<()> {
     let target_fields = ["title", "email"];
     let mut rng = rand::thread_rng();
@@ -231,7 +202,7 @@ pub async fn waterfall_enrichment(db: Db, lead_id: String) -> Result<()> {
         let db2  = Arc::clone(&db);
         let lid  = lead_id.clone();
         let rid  = run_id.clone();
-        // `.map(|t| t.to_string())` converts &&str → String so we can move into closure
+        // Converts &&str → String so we can move into the spawn_blocking closure
         let title_val = maybe_title.map(|t| t.to_string());
         let email_val = maybe_email.map(|e| e.to_string());
 
@@ -247,7 +218,7 @@ pub async fn waterfall_enrichment(db: Db, lead_id: String) -> Result<()> {
             Ok(())
         }).await??;
 
-        // Diagnostic print — mirrors Python's print() in waterfall_enrichment
+        // Diagnostic print
         println!("[waterfall] {} → needed={:?} added={}", name, still_needed, added_any);
     }
 
@@ -259,8 +230,6 @@ pub async fn waterfall_enrichment(db: Db, lead_id: String) -> Result<()> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Expensive deep-research pass that always fills remaining fields at high confidence.
-///
-/// Python equivalent: async def agent_enrichment(db, lead)
 pub async fn agent_enrichment(db: Db, lead_id: String, lead_name: String, lead_company: String) -> Result<()> {
     let key = format!("{lead_id}-agent-v1");
 
@@ -305,7 +274,6 @@ pub async fn agent_enrichment(db: Db, lead_id: String, lead_name: String, lead_c
         Some(AGENT_TITLE_POOL.choose(&mut rng).unwrap().to_string())
     } else { None };
 
-    // Python: f"{lead.name.lower().replace(' ', '.')}@{lead.company.lower().replace(' ', '')}.com"
     let email_val = if need_email {
         Some(format!(
             "{}@{}.com",
