@@ -1,8 +1,5 @@
 //! Job consumer — pulls jobs from Redis and executes them.
 //!
-//! Python equivalent: `leadintel/vendor/execution_engine/worker.py` (Worker)
-//!   and `leadintel/worker.py` (the top-level Worker that reads config.py's Redis)
-//!
 //! Redis commands used:
 //!   BRPOPLPUSH  src dst timeout  — atomically pop from src + push to dst.
 //!                                   Blocks up to `timeout` seconds waiting
@@ -14,12 +11,6 @@
 //!   HSET        job:<id> status  — update status
 //!   LREM        queue 1 <id>     — remove job from processing list on success
 //!   ZADD        retry_set <score> <id> — schedule a retry
-//!
-//! Rust async pattern:
-//!   This runs as a tokio task (`tokio::spawn`).  The inner loop is an
-//!   `async loop {}` — equivalent to Python's `while True:`.
-//!   Each iteration awaits BRPOPLPUSH, which yields control to other tasks
-//!   while waiting — the event loop isn't blocked.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -41,8 +32,6 @@ const PROCESSING_QUEUE: &str = "default_queue:processing";
 const RETRY_SET: &str = "retry_set";
 
 /// Run the consumer loop forever, processing jobs as they arrive.
-///
-/// Python equivalent: Worker.run() — the `while True` loop
 pub async fn run(
     db:       Db,
     pipeline: Arc<Vec<PipelineStage>>,
@@ -59,8 +48,7 @@ pub async fn run(
     loop {
         // BRPOPLPUSH: atomically pop from queue → push to processing list.
         // The `5` is a timeout in seconds — if the queue is empty, this
-        // returns None after 5s.  Python uses `cast(str | None, ...)` to
-        // handle the None; Rust uses `Option<String>` directly.
+        // returns None after 5s.
         let job_id: Option<String> = redis::cmd("BRPOPLPUSH")
             .arg(QUEUE_NAME)
             .arg(PROCESSING_QUEUE)
@@ -90,8 +78,6 @@ pub async fn run(
 }
 
 /// Execute one job.
-///
-/// Python equivalent: Worker.execute_job(job_id)
 async fn execute_job(
     conn:     &mut ConnectionManager,
     db:       Db,
@@ -104,9 +90,8 @@ async fn execute_job(
     // Mark running
     conn.hset::<_, _, _, ()>(&job_key, "status", "running").await?;
 
-    // Fetch job metadata from the hash
-    // `HGETALL` returns a flat list of [field, value, field, value, ...]
-    // The redis crate can decode this into a HashMap<String, String> directly.
+    // Fetch job metadata from the hash.
+    // HGETALL returns a flat [field, value, field, value, ...] list.
     let job_data: HashMap<String, String> = conn.hgetall(&job_key).await?;
 
     let func_name = job_data.get("func")
@@ -167,10 +152,7 @@ async fn execute_job(
 
 /// Handle a failed job — schedule retry or send to dead-letter queue.
 ///
-/// Python equivalent: Worker.handle_failure(job_id, job_key)
-///
 /// Retry delay uses exponential backoff: 2^attempt seconds.
-/// Same formula as Python: `delay = 2 ** attempt`
 async fn handle_failure(conn: &mut ConnectionManager, job_id: &str) -> Result<()> {
     let job_key = format!("job:{job_id}");
 
@@ -181,8 +163,6 @@ async fn handle_failure(conn: &mut ConnectionManager, job_id: &str) -> Result<()
     if retries > 0 {
         let attempt = max_ret - retries;
         // Exponential backoff: 2^attempt seconds (1s, 2s, 4s, ...)
-        // In Python: `delay = 2 ** attempt`
-        // In Rust: `2_i32.pow(attempt as u32)` — pow is a method on integers
         let delay_secs = 2_i32.pow(attempt as u32);
 
         println!("[!] Scheduling retry #{} in {delay_secs}s", attempt + 1);
