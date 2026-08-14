@@ -1,7 +1,5 @@
 //! Job producer — pushes jobs onto the Redis queue.
 //!
-//! Python equivalent: `leadintel/vendor/execution_engine/producer.py` (JobProducer)
-//!
 //! The producer stores job metadata in a Redis hash (`job:<uuid>`) and pushes
 //! the UUID onto a Redis list (`default_queue`).  The consumer pops from the
 //! list and looks up the hash for the actual job details.
@@ -10,9 +8,7 @@
 //!   - HSET  job:<id> func "process_lead" args "[...]" status "queued" ...
 //!   - LPUSH default_queue <id>
 //!
-//! Rust async Redis pattern:
-//!   We hold a `ConnectionManager` which automatically reconnects on failure.
-//!   Every command is `.await`'d on the async task's thread — no blocking.
+//! Uses a `ConnectionManager`, which automatically reconnects on failure.
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -22,8 +18,6 @@ use redis::AsyncCommands;
 use serde_json::Value;
 
 /// Pushes jobs to Redis.
-///
-/// Python equivalent: class JobProducer with self.r = get_redis_client()
 pub struct JobProducer {
     /// Async Redis connection — automatically reconnects on failure.
     conn: ConnectionManager,
@@ -31,23 +25,13 @@ pub struct JobProducer {
 
 impl JobProducer {
     /// Connect to Redis and return a producer.
-    ///
-    /// Python equivalent: `__init__` calling `get_redis_client()`
     pub async fn new(redis_url: &str) -> Result<Self> {
         let client = redis::Client::open(redis_url)?;
-        // `ConnectionManager` wraps the connection in auto-retry logic.
-        // `.await` here waits for the initial connection to succeed.
         let conn = ConnectionManager::new(client).await?;
         Ok(JobProducer { conn })
     }
 
     /// Push one job onto the default queue.
-    ///
-    /// Python equivalent:
-    ///     def enqueue(self, func_name, args=None, retries=3):
-    ///         job_id = str(uuid.uuid4())
-    ///         self.r.hset(f"job:{job_id}", mapping={...})
-    ///         self.r.lpush("default_queue", job_id)
     ///
     /// `payload` is a JSON value — serialized to a string for storage.
     pub async fn enqueue(&self, func_name: &str, payload: &Value) -> Result<String> {
@@ -60,7 +44,6 @@ impl JobProducer {
             .as_secs_f64();
 
         // HSET job:<id> field1 val1 field2 val2 ...
-        // `hset` with a slice of pairs is the multi-field form
         let mut conn = self.conn.clone();
         redis::cmd("HSET")
             .arg(&job_key)
