@@ -1,12 +1,7 @@
 //! Pipeline entry point — enqueues all raw leads and starts the job system.
 //!
-//! Python equivalent: `runner.py` — run_pipeline(workers=3)
-//!
-//! In Python, run_pipeline() calls job_processor.enqueue() for every raw lead
-//! then calls job_processor.start() which launches daemon threads.
-//!
-//! In Rust, we start the job consumer as a tokio task before enqueuing,
-//! then wait for all leads to reach the DONE state.
+//! Starts the job consumer as a tokio task before enqueuing, then waits for
+//! all leads to reach the DONE state.
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -64,11 +59,6 @@ pub async fn run_pipeline(db: Db, redis_url: String, pipeline_path: String) -> R
     }
 
     // Poll until all leads are DONE
-    // Python equivalent:
-    //     while True:
-    //         pending = [l for l in repo.list_all(db) if l.state != "DONE"]
-    //         if not pending: break
-    //         await asyncio.sleep(2)
     loop {
         sleep(Duration::from_secs(2)).await;
 
