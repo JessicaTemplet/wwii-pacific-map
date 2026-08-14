@@ -1,7 +1,5 @@
 //! Job queue infrastructure — producer, consumer, and retry scheduler.
 //!
-//! Python equivalent: `leadintel/vendor/execution_engine/` package
-//!
 //! Three sub-modules:
 //!   producer  — enqueues jobs (writes to Redis)
 //!   consumer  — dequeues and executes jobs (BRPOPLPUSH loop)
