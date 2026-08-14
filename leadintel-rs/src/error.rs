@@ -1,16 +1,8 @@
 //! Crate-wide error type.
 //!
-//! Python equivalent: raising built-in exceptions (ValueError, RuntimeError, etc.)
-//! Rust equivalent:   a single enum that holds every kind of error this app can produce.
-//!
-//! Why one error enum?
-//! In Python you can raise any exception anywhere and catch it wherever you like.
-//! In Rust, errors are values — a function's return type must declare what errors it
-//! can produce.  Having one `LeadIntelError` type means every function in this crate
-//! can return `Result<T, LeadIntelError>` (or the shorthand `anyhow::Result<T>`).
-//!
-//! We use `thiserror`-style Display impls so the error messages look like Python's
-//! exception messages when printed.
+//! One `LeadIntelError` enum holds every kind of error this app can produce,
+//! so every function in this crate can return `Result<T, LeadIntelError>`
+//! (or the shorthand `anyhow::Result<T>`).
 
 use std::fmt;
 
@@ -18,11 +10,9 @@ use std::fmt;
 #[derive(Debug)]
 pub enum LeadIntelError {
     /// A database operation failed.
-    /// Python analogy: sqlalchemy.exc.OperationalError
     Database(rusqlite::Error),
 
     /// A Redis operation failed.
-    /// Python analogy: redis.exceptions.RedisError
     Redis(redis::RedisError),
 
     /// JSON encode/decode failed (job payloads).
@@ -32,11 +22,9 @@ pub enum LeadIntelError {
     Yaml(serde_yaml::Error),
 
     /// Something was not found (lead_id not in DB, etc.)
-    /// Python analogy: raising ValueError("Lead not found: ...")
     NotFound(String),
 
     /// A required field was missing or invalid.
-    /// Python analogy: raise RuntimeError("Missing function name for job ...")
     InvalidState(String),
 
     /// File I/O error (reading pipeline.yaml, CSV ingestion, etc.)
@@ -44,11 +32,6 @@ pub enum LeadIntelError {
 }
 
 // ── Automatic conversions from lower-level errors ────────────────────────────
-//
-// The `From` trait is what powers the `?` operator.
-// When you write `some_rusqlite_fn()?`, Rust automatically calls
-// `LeadIntelError::from(the_rusqlite_error)` to convert the type.
-// This is equivalent to Python's exception chaining.
 
 impl From<rusqlite::Error> for LeadIntelError {
     fn from(e: rusqlite::Error) -> Self {
@@ -96,6 +79,5 @@ impl fmt::Display for LeadIntelError {
     }
 }
 
-// `std::error::Error` is the standard trait for error types — required for
-// anyhow::Error and other error-handling crates to accept our type.
+/// Required for `anyhow::Error` and other error-handling crates to accept our type.
 impl std::error::Error for LeadIntelError {}
