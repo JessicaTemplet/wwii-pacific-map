@@ -1,11 +1,9 @@
 //! Core pipeline logic — processes one lead through one pipeline stage.
 //!
-//! Python equivalent: `leadintel/core/worker.py` — process_lead(payload)
-//!
 //! This is the heart of the system.  The job consumer (job/consumer.rs) pulls
 //! a job from Redis and calls `process_lead()` for each one.
 //!
-//! Flow (mirrors Python process_lead exactly):
+//! Flow:
 //!   1. Load lead from DB
 //!   2. Compute current doubt score
 //!   3. Walk pipeline stages in order; run the first stage whose threshold
@@ -36,8 +34,6 @@ use crate::{
 
 /// The data that travels with each job in the Redis queue.
 ///
-/// Python equivalent: the dict `{"lead_id": lead.id}` passed to job_processor.enqueue().
-///
 /// Derive `Serialize` / `Deserialize` so serde_json can convert this to/from
 /// the JSON string stored in the Redis hash.
 #[derive(Debug, Serialize, Deserialize)]
@@ -51,13 +47,10 @@ pub struct LeadPayload {
 
 /// Process one lead through one pipeline stage.
 ///
-/// Python equivalent: async def process_lead(payload)
-///
 /// Why `pipeline: Arc<Vec<PipelineStage>>`?
 ///   The pipeline config is loaded once at startup and shared across all
 ///   concurrent `process_lead` calls.  `Arc` gives shared read-only access
-///   without copying the Vec each time.  Python doesn't need this because
-///   the module-level `pipeline` variable is a global shared by all coroutines.
+///   without copying the Vec each time.
 pub async fn process_lead(
     db:              Db,
     pipeline:        Arc<Vec<PipelineStage>>,
@@ -104,7 +97,7 @@ pub async fn process_lead(
             lead.spent_cents += stage.cost;
             executed = true;
 
-            // Only one stage per job execution — matches Python's `break`
+            // Only one stage per job execution
             break;
         }
     }
@@ -134,12 +127,6 @@ pub async fn process_lead(
     }
 
     // ── Step 6: Decide next action ───────────────────────────────────────────
-    //
-    // Python:
-    //     if not executed or lead.current_doubt < 0.2:
-    //         lead.state = "DONE"
-    //     else:
-    //         job_processor.enqueue(task="process_lead", payload={"lead_id": lead.id})
     if !executed || lead.current_doubt < 0.2 {
         lead.state = "DONE".to_owned();
         println!("[OK] Lead {} done (doubt={:.2})", lead.id, lead.current_doubt);
