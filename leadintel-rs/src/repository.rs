@@ -1,13 +1,9 @@
 //! Database CRUD operations.
 //!
-//! Python equivalent: `leadintel/storage/repositories.py`
-//! (LeadRepository, ObservationRepository, RunRepository)
-//!
 //! Design notes
 //! ------------
-//! In Python, SQLAlchemy's ORM lets you do `db.query(Lead).filter(...)`.
-//! In Rust with rusqlite we write SQL directly.  This feels lower-level but
-//! gives you full control and no hidden N+1 query surprises.
+//! We write SQL directly with rusqlite instead of using an ORM — lower-level,
+//! but full control and no hidden N+1 query surprises.
 //!
 //! Every function takes `&rusqlite::Connection` — a shared reference to the
 //! already-open connection.  The caller (in async code) is responsible for
@@ -18,9 +14,6 @@
 //!         let conn = db2.lock().unwrap();
 //!         lead_repo::create(&conn, "Alice", "Acme")
 //!     }).await??;
-//!
-//! (The double `??` unwraps first the JoinError from spawn_blocking, then
-//! the Result from the actual function.)
 
 use anyhow::{Context, Result};
 use rusqlite::{params, Connection};
@@ -32,8 +25,6 @@ use crate::models::{EnrichmentRun, Lead, Observation, Signal};
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Insert a new lead and return it.
-///
-/// Python equivalent: LeadRepository.create(db, name, company)
 pub fn lead_create(conn: &Connection, name: &str, company: &str) -> Result<Lead> {
     let lead = Lead::new(name, company);
     conn.execute(
@@ -54,34 +45,24 @@ pub fn lead_create(conn: &Connection, name: &str, company: &str) -> Result<Lead>
 }
 
 /// Fetch a single lead by primary key.  Returns `None` if not found.
-///
-/// Python equivalent: LeadRepository.get(db, lead_id)
-/// In Python, .first() returns None if not found.
-/// In Rust, `Optional::None` is explicit and type-safe — you can't accidentally
-/// call methods on a None without pattern-matching it first.
 pub fn lead_get(conn: &Connection, lead_id: &str) -> Result<Option<Lead>> {
     let mut stmt = conn.prepare(
         "SELECT id, name, company, state, current_doubt, budget_cents, spent_cents, created_at
          FROM leads WHERE id = ?1"
     )?;
 
-    // `query_row` runs the query and maps the first row.
     // `.optional()` converts "no rows" from an error into `Ok(None)`.
     let result = stmt.query_row(params![lead_id], row_to_lead).optional()?;
     Ok(result)
 }
 
 /// Fetch all leads.
-///
-/// Python equivalent: LeadRepository.list_all(db)
 pub fn lead_list_all(conn: &Connection) -> Result<Vec<Lead>> {
     let mut stmt = conn.prepare(
         "SELECT id, name, company, state, current_doubt, budget_cents, spent_cents, created_at
          FROM leads"
     )?;
 
-    // `query_map` applies a closure to every row and collects into an iterator.
-    // `.collect::<Result<Vec<_>>>()` turns Result<Lead> per row into one Result<Vec<Lead>>.
     let leads = stmt
         .query_map([], row_to_lead)?
         .collect::<std::result::Result<Vec<_>, _>>()?;
@@ -90,10 +71,7 @@ pub fn lead_list_all(conn: &Connection) -> Result<Vec<Lead>> {
 }
 
 /// Persist changes to an existing lead (state, doubt, spent_cents).
-///
-/// Python equivalent: `db.commit()` after mutating lead fields.
-/// In Python, SQLAlchemy tracks object changes automatically.
-/// In Rust we are explicit: write exactly which columns changed.
+/// Writes exactly these columns — nothing else.
 pub fn lead_update(conn: &Connection, lead: &Lead) -> Result<()> {
     conn.execute(
         "UPDATE leads SET state=?1, current_doubt=?2, spent_cents=?3 WHERE id=?4",
@@ -122,8 +100,6 @@ fn row_to_lead(row: &rusqlite::Row<'_>) -> rusqlite::Result<Lead> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Insert a new observation.
-///
-/// Python equivalent: ObservationRepository.add(db, lead_id, field_name, ...)
 pub fn observation_add(
     conn:       &Connection,
     lead_id:    &str,
@@ -152,8 +128,6 @@ pub fn observation_add(
 }
 
 /// Return all observations for a lead.
-///
-/// Python equivalent: db.query(Observation).filter(Observation.lead_id == lead.id).all()
 pub fn observations_for_lead(conn: &Connection, lead_id: &str) -> Result<Vec<Observation>> {
     let mut stmt = conn.prepare(
         "SELECT id, lead_id, field_name, value, source, confidence, run_id, created_at
@@ -179,8 +153,6 @@ pub fn observations_for_lead(conn: &Connection, lead_id: &str) -> Result<Vec<Obs
 }
 
 /// Return the set of distinct field names that have at least one observation.
-///
-/// Python equivalent: the _existing_fields() helper in tasks.py
 pub fn observed_fields(conn: &Connection, lead_id: &str) -> Result<std::collections::HashSet<String>> {
     let mut stmt = conn.prepare(
         "SELECT DISTINCT field_name FROM observations WHERE lead_id = ?1"
@@ -198,8 +170,6 @@ pub fn observed_fields(conn: &Connection, lead_id: &str) -> Result<std::collecti
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Insert a new enrichment run record.
-///
-/// Python equivalent: RunRepository.create(db, lead_id, stage, key)
 pub fn run_create(conn: &Connection, lead_id: &str, stage: &str, key: &str) -> Result<EnrichmentRun> {
     let run = EnrichmentRun::new(lead_id, stage, key);
     conn.execute(
@@ -219,8 +189,6 @@ pub fn run_create(conn: &Connection, lead_id: &str, stage: &str, key: &str) -> R
 }
 
 /// Look up a run by idempotency key.  Returns None if not found.
-///
-/// Python equivalent: RunRepository.get_by_key(db, key)
 /// Used to skip stages that already ran (idempotency guard).
 pub fn run_get_by_key(conn: &Connection, key: &str) -> Result<Option<EnrichmentRun>> {
     let mut stmt = conn.prepare(
@@ -245,8 +213,6 @@ pub fn run_get_by_key(conn: &Connection, key: &str) -> Result<Option<EnrichmentR
 }
 
 /// Mark a run as succeeded or failed.
-///
-/// Python equivalent: run.success = True; db.commit()
 pub fn run_complete(conn: &Connection, run_id: &str, success: bool) -> Result<()> {
     use chrono::Utc;
     conn.execute(
@@ -261,8 +227,6 @@ pub fn run_complete(conn: &Connection, run_id: &str, success: bool) -> Result<()
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Insert a signal.
-///
-/// Python equivalent: db.add(signal); db.commit()
 pub fn signal_insert(conn: &Connection, signal: &Signal) -> Result<()> {
     conn.execute(
         "INSERT INTO signals (id, lead_id, signal_type, score, explanation, created_at)
